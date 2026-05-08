@@ -1,6 +1,6 @@
 # ramhoj.github.io
 
-Personal homepage for Nicklas Ramhöj Holtryd. Hosted at https://ramhoj.github.io.
+A collection of posts and presentations. Vibe coded with Claude. Hosted at https://ramhoj.github.io/homepage
 
 ## Structure
 

@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Design at the Center</title>
+
+  <!-- Teamtailor fonts: Inter -->
+  <link rel="preconnect" href="https://rsms.me/">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+
+  <!-- Prism.js for syntax highlighting -->
+  <link rel="stylesheet" href="prism-theme.css">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a href="../../index.html" class="home-link">← Home</a>
+  <div class="presentation">
+
+    <!-- ============================================================
+         CHAPTER 1: INTRODUCTION
+         ============================================================ -->
+
+    <!-- ================================================================
+         Title
+         ================================================================ -->
+    <section class="slide slide--gradient" id="title">
+      <div class="slide-inner">
+        <h1 class="slide-title slide-title--large">Domain Driven Design<br>in practice</h1>
+        <p class="slide-subtitle">Lessons from 37signals on writing code that's clear, maintainable, and a pleasure to read.</p>
+      </div>
+
+      <nav class="slide-nav">
+        <span class="nav-disabled">←</span>
+        <a href="#about-me" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         About Me
+         ================================================================ -->
+    <section class="slide slide--dark" id="about-me">
+      <div class="slide-inner">
+        <div class="about-layout">
+          <div class="about-text">
+            <h2 class="slide-title">Nicklas Ramhöj Holtryd</h2>
+            <p class="about-bio">New on the product team in Gothenburg</p>
+            <p class="about-bio">Previously 3 years at <strong>37signals</strong> — <strong>Basecamp</strong> & <strong>HEY</strong></p>
+            <p class="about-bio">Sharing DDD ideas from Jorge's <a href="https://www.youtube.com/watch?v=dvPXFnX60cg">Fizzy tour</a></p>
+          </div>
+          <img src="profile-photo-cropped-3.jpeg" alt="Nicklas Ramhöj Holtryd" class="profile-photo">
+        </div>
+
+        <p class="speaker-notes">
+          Hi there! I'm Nicklas, a new developer on the product team in Gothenburg.
+          <br><br>
+          Before I joined Teamtailor, I spent three years at 37signals working on Basecamp and HEY.
+          <br><br>
+          I learned a lot from my time there and CJ suggested that I might want to share some of the code design ideas
+          that I picked up.
+          <br><br>
+          37signals design preferences aren't by any means secret and some of you might have
+          seen Jorge Manrubia's Fizzy tour video recently. If you've seen it, most of this presentation will be familiar to you
+          but I hope that I can still contribute some value by answering questions and provide some different perspectives.
+          <br><br>
+          I could spend hours talking about code design so I've narrowed today's topic down to 37signals' take on domain driven design.
+          This is mostly what Jorge's video is about.
+          <br><br>
+          The ideas I'm sharing here were dogma at 37signals and I've learned to appreciate a lot of them. That said,
+          I understand that they only represent one company's way of writing Rails applications and
+          I'm very eager to learn more about Teamtailor's code design philosophy, how it differs from
+          37signals', and what I can learn from you all!
+          <br><br>
+          Enough intro, let's get going.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#title" class="nav-link">←</a>
+        <a href="#what-is-ddd" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         What is DDD?
+         ================================================================ -->
+    <section class="slide slide--dark" id="what-is-ddd">
+      <div class="slide-inner">
+        <h2 class="slide-title">Domain-Driven Design</h2>
+        <p class="slide-subtitle" style="margin-bottom: 2.5rem;">A philosophy for structuring complex software, coined by Eric Evans in 2003</p>
+
+        <div class="ddd-principles">
+          <div class="ddd-principle">
+            <span class="ddd-principle-icon">🧠</span>
+            <h3>Rich Domain Models</h3>
+            <p>Models contain behavior, not just data. They represent real business concepts.</p>
+          </div>
+
+          <div class="ddd-principle">
+            <span class="ddd-principle-icon">💬</span>
+            <h3>Ubiquitous Language</h3>
+            <p>Code uses the same terms as the business. If users "gild" a card, the code says <code>card.gild</code>.</p>
+          </div>
+
+          <div class="ddd-principle">
+            <span class="ddd-principle-icon">🎯</span>
+            <h3>Domain First</h3>
+            <p>The domain model is the heart of the application. Everything else exists to serve it.</p>
+          </div>
+        </div>
+
+        <p class="speaker-notes">
+          Let's do a very quick recap of what Domain-Driven Design is about.
+          <br><br>
+          It comes down to three core ideas: rich domain models, ubiquitous language, and a domain centric design.
+          <br><br>
+          In the next slides I'll get to some examples of what this meant in practice at 37signals.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#about-me" class="nav-link">←</a>
+        <a href="#chapter-rich-models" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ============================================================
+         CHAPTER 2: RICH DOMAIN MODELS
+         ============================================================ -->
+
+    <!-- ================================================================
+         Chapter Divider: Rich Domain Models
+         ================================================================ -->
+    <section class="slide slide--accent" id="chapter-rich-models">
+      <div class="slide-inner">
+        <p class="chapter-label">Chapter 1</p>
+        <h2 class="slide-title slide-title--large">Rich Domain Models</h2>
+        <p class="slide-subtitle">Organizing behavior with concerns</p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#what-is-ddd" class="nav-link">←</a>
+        <a href="#domain-center" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Domain at the Center (Epicenter Philosophy)
+         ================================================================ -->
+    <section class="slide slide--dark" id="domain-center">
+      <div class="slide-inner">
+        <h2 class="slide-title">The Epicenter</h2>
+
+        <div class="epicenter-visual">
+          <div class="epicenter-ring epicenter-ring--outer">
+            <span class="epicenter-label epicenter-label--top">Controllers</span>
+            <span class="epicenter-label epicenter-label--bottom">Jobs</span>
+            <div class="epicenter-ring epicenter-ring--middle">
+              <span class="epicenter-label epicenter-label--top">Golden</span>
+              <div class="epicenter-ring epicenter-ring--center">
+                <span class="epicenter-core">Card</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="slide-text" style="margin-top: 2rem;">
+          Start with the domain model at the center. Build outward with concerns and thin orchestration layers.
+        </p>
+
+        <p class="speaker-notes">
+          So, domain driven design and ShapeUp share the same technique—starting with the epicenter and working our way out.
+          <br><br>
+          When organizing our code, we place the domain model in the center and build outwards.
+          <br><br>
+          And from there, roles and traits can be extended as concern modules, using object composition when necessary.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#chapter-rich-models" class="nav-link">←</a>
+        <a href="#code-card-model" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Code: Card Model
+         ================================================================ -->
+    <section class="slide slide--dark" id="code-card-model">
+      <div class="slide-inner">
+        <h2 class="slide-title">Rich, coherent domain objects</h2>
+
+        <div class="code-container">
+          <span class="code-filename">app/models/card.rb</span>
+          <pre class="code-block"><code class="language-ruby">class Card < ApplicationRecord
+  include Assignable, Attachments, Broadcastable, Closeable, Colored, Entropic, Eventable,
+    Exportable, Golden, Mentions, Multistep, Pinnable, Postponable, Promptable,
+    Readable, Searchable, Stallable, Statuses, Storage::Tracked, Taggable, Triageable, Watchable
+
+  belongs_to :board
+  belongs_to :creator, class_name: "User", default: -> { Current.user }
+
+  has_rich_text :description
+
+  scope :chronologically, -> { order created_at: :asc, id: :asc  }
+
+  def to_param
+    number.to_s
+  end
+
+  def move_to(new_board)
+    transaction do
+      update! board: new_board
+      events.update_all board_id: new_board.id
+    end
+  end
+  …
+end</code></pre>
+        </div>
+
+        <p class="slide-text">
+          Concerns organize traits and roles. The model stays readable and coherent.
+        </p>
+
+        <p class="speaker-notes">
+          So this is the Card model from Fizzy.
+          <br><br>
+          The Card is a central entity, so it has a lot going on—but thanks to Concerns it's much easier to digest.
+          Here we can see how they act as a table of contents for the model.
+          <br><br>
+          Each Concern defines a specific trait. Golden means it can be gilded, Stallable tracks if a card has been stalled, and so on.
+          <br><br>
+          And the model itself stays focused on what defines the core. What remains are things that without, would make the model pointless.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#domain-center" class="nav-link">←</a>
+        <a href="#code-concern" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Code: Concern Example
+         ================================================================ -->
+    <section class="slide slide--dark" id="code-concern">
+      <div class="slide-inner">
+        <h2 class="slide-title">Traits as concerns</h2>
+
+        <div class="code-tabs">
+          <div class="code-tabs-nav">
+            <button class="code-tab active" data-tab="concern-code">app/models/card/golden.rb</button>
+            <button class="code-tab" data-tab="concern-test">test/models/card/golden_test.rb</button>
+          </div>
+
+          <div class="code-tab-content active" id="tab-concern-code">
+            <pre class="code-block"><code class="language-ruby">module Card::Golden
+  extend ActiveSupport::Concern
+
+  included do
+    has_one :goldness, dependent: :destroy
+    after_update_commit :gild, unless: :auto_gild?
+    scope :golden, -> { joins :goldness }
+  end
+
+  def golden?
+    goldness.present?
+  end
+
+  def gild
+    create_goldness! unless golden?
+  end
+
+  def ungild
+    goldness&.destroy
+  end
+
+  private
+    def auto_gild?
+      …
+    end
+  …
+end</code></pre>
+            <p class="slide-text">
+              Things that belong together, live together—including tests.
+            </p>
+          </div>
+
+          <div class="code-tab-content" id="tab-concern-test">
+            <pre class="code-block"><code class="language-ruby">require "test_helper"
+
+class Card::GoldenTest < ActiveSupport::TestCase
+  test "gild makes the card golden" do
+    assert_changes -> { cards(:ungilded).reload.golden? }, to: true do
+      { cards(:ungilded).gild }
+    end
+  end
+
+  test "ungild stops the card from being golden" do
+    assert_changes -> { cards(:gilded).reload.golden? }, to: false do
+      { cards(:gilded).ungild }
+    end
+  end
+  …
+end</code></pre>
+            <p class="slide-text">
+              No 2,000-line <code>card_test.rb</code>, just focused specs that mirror the concern structure.
+            </p>
+          </div>
+        </div>
+
+        <p class="speaker-notes">
+          And here's what one of those concerns looks like inside.
+          <br><br>
+          Everything about gilding lives in this one file—the association, the scope, the private and public API.
+          <br><br>
+          So if we need to change how gilding works, we have one place to go. Jorge talks about this a lot: things that belong together should live together.
+          <br><br>
+          It we where to put it all in the model, you'd have to scroll a lot to for example see the details of `auto_gild?`. Now they are close.
+          <br><br>
+          And notice the test file—it mirrors the concern path. Instead of one massive card_test.rb with thousands of lines,
+          you have focused test files for each concern. When you're working on gilding, you run the gilding tests.
+          When you change the concern, you know exactly which tests to update.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#code-card-model" class="nav-link">←</a>
+        <a href="#chapter-simpler-way" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ============================================================
+         CHAPTER 3: A SIMPLER WAY
+         ============================================================ -->
+
+    <!-- ================================================================
+         Chapter Divider: A Simpler Way
+         ================================================================ -->
+    <section class="slide slide--accent" id="chapter-simpler-way">
+      <div class="slide-inner">
+        <p class="chapter-label">Chapter 2</p>
+        <h2 class="slide-title slide-title--large">Focus on intent, not implementation</h2>
+        <p class="slide-subtitle">Code that reads more like prose, than a computer science textbook</p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#code-concern" class="nav-link">←</a>
+        <a href="#service-comparison" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Service Object Comparison
+         ================================================================ -->
+    <section class="slide slide--dark" id="service-comparison">
+      <div class="slide-inner">
+        <h2 class="slide-title">Boilerplate obscures intent</h2>
+
+        <div class="code-tabs">
+          <div class="code-tabs-nav">
+            <button class="code-tab active" data-tab="simple">Simple: single domain call</button>
+            <button class="code-tab" data-tab="complex">Complex: extracting to a form object</button>
+          </div>
+
+          <div class="code-tab-content active" id="tab-simple">
+            <div class="comparison">
+              <div class="comparison-side comparison-side--bad">
+                <h3>With a service object</h3>
+                <div class="code-container">
+                  <pre class="code-block"><code class="language-ruby"># In the controller
+Card::SendBackToTriageService.call(card)
+
+# Separate service class
+class Card::SendBackToTriageService
+  def initialize(card)
+    @card = card
+  end
+
+  def call
+    @card.transaction do
+      @card.resume
+      @card.update! column: nil
+      @card.track_event :sent_back_to_triage
+    end
+  end
+  …
+end</code></pre>
+                </div>
+              </div>
+
+              <div class="comparison-side comparison-side--good">
+                <h3>Directly on the domain</h3>
+                <div class="code-container">
+                  <pre class="code-block"><code class="language-ruby"># In the controller
+card.send_back_to_triage
+
+module Card::Triageable
+  def send_back_to_triage
+    transaction do
+      resume
+      update! column: nil
+      track_event :sent_back_to_triage
+    end
+  end
+  …
+end</code></pre>
+                </div>
+                <p class="slide-text" style="margin-top: 1rem; font-size: 1rem;">
+                  What isn't there is as important as what is.<br>
+                  The sooner we can get to the point, the faster we'll understand the intent.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="code-tab-content" id="tab-complex">
+            <div class="complex-example">
+              <div class="complex-example-side">
+                <h3>Controller</h3>
+                <div class="code-container">
+                  <pre class="code-block"><code class="language-ruby">class Signups::CompletionsController
+  def create
+    @signup = Signup.new(signup_params)
+
+    if @signup.complete
+      redirect_to landing_url
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+  …
+end</code></pre>
+                </div>
+              </div>
+
+              <div class="complex-example-side">
+                <h3>Form object</h3>
+                <div class="code-container">
+                  <pre class="code-block"><code class="language-ruby">class Signup
+  include ActiveModel::Model
+
+  attr_accessor :full_name, :identity
+  validates :full_name, :identity, presence: true
+
+  def complete
+    valid? && create_account
+  end
+
+  private
+    def create_account
+      Account.create_with_owner(...)
+    end
+  …
+end</code></pre>
+                </div>
+              </div>
+            </div>
+            <p class="slide-text" style="margin-top: 1rem; font-size: 1rem;">
+              Object composition can be the right choice when we want to compose multiple domain objects to perform a single operation.
+            </p>
+          </div>
+        </div>
+
+        <p class="speaker-notes">
+          So Jorge explains how wrapping a single line in a service object can add distracting boilerplate code.
+          <br><br>
+          I think most people would agree with this simple example,
+          so I wanted to make it more interesting by including the implementation for comparison.
+          <br><br>
+          On the left, we see a lot of feature envy and unnecessary ceremony to initialize the service object.
+          We add noise without value by explicitly calling `call` on a "service."
+          <br><br>
+          On the right, the method lives directly on the model.
+          There's no feature envy, which lets us focus on intent rather than syntax.
+          <br><br>
+          Now, there are still good examples of when a Controller might want to delegate work.
+          In this example we use what 37signals calls a form object to coordinate multiple models, keeping the controller slim.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#chapter-simpler-way" class="nav-link">←</a>
+        <a href="#semantic-naming" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Semantic Naming
+         ================================================================ -->
+    <section class="slide slide--dark" id="semantic-naming">
+      <div class="slide-inner">
+        <h2 class="slide-title">Ubiquitous language in code</h2>
+
+        <div class="naming-examples">
+          <div class="naming-row">
+            <code class="naming-bad">CardGildingService.call(card)</code>
+            <span class="naming-arrow">→</span>
+            <code class="naming-good">card.gild</code>
+          </div>
+          <div class="naming-row">
+            <code class="naming-bad">ResumeCardOperation.new(card).execute</code>
+            <span class="naming-arrow">→</span>
+            <code class="naming-good">card.resume</code>
+          </div>
+        </div>
+
+        <p class="slide-text" style="margin-top: 2rem;">
+          Generic verbs like <code>call</code> and <code>execute</code> say nothing about intent, they don't add value or information.<br>
+          Domain methods read like prose:<em>"Gild the card."</em>, <em>"Resume the card."</em>.
+        </p>
+
+        <p class="speaker-notes">
+          This is another example of something Jorge mentions—they don't use the word "service" and they avoid method names like `call` or `execute`.
+          <br><br>
+          And when you compare `CardGildingService.call(card)` versus `card.gild`,
+          it's easy to see how the second one reads more like English prose.
+          To me, the first one feels more written for a computer than for human consumption.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#service-comparison" class="nav-link">←</a>
+        <a href="#organize-by-domain" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Organize by Domain
+         ================================================================ -->
+    <section class="slide slide--dark" id="organize-by-domain">
+      <div class="slide-inner">
+        <h2 class="slide-title">Organize by domain, not by role</h2>
+
+        <div class="naming-examples">
+          <div class="naming-row">
+            <code class="naming-bad">app/services/card_gilding.rb</code>
+            <span class="naming-arrow">→</span>
+            <code class="naming-good">app/models/card/golden.rb</code>
+          </div>
+          <div class="naming-row">
+            <code class="naming-bad">app/detectors/card_activity_spike.rb</code>
+            <span class="naming-arrow">→</span>
+            <code class="naming-good">app/models/card/activity_spike/detector.rb</code>
+          </div>
+        </div>
+
+        <p class="slide-text" style="margin-top: 2rem;">
+          Unless implementing specific orchestration roles such as Controllers and Jobs; avoid folders like <code>services/</code>, <code>processors/</code>, <code>resolvers/</code> etc that group by implementation.<br>
+          They explode your domain objects, making them harder to reason about.<br><br>
+          Organize by domain first. Use suffixes to denote roles when necessary.
+        </p>
+
+        <p class="speaker-notes">
+          Organize by domain, not by role
+          <br><br>
+          This follows naturally from what we just talked about with ubiquitous language.
+          <br><br>
+          When you create folders by role—services, detectors, processors—you're grouping code by what it does technically, not by what it means to the business.
+          <br><br>
+          Instead, group by domain concept first. Everything about cards lives under Card:: namespace. Gilding logic goes in Card::Golden. Activity spike detection goes in Card::ActivitySpike::Detector.
+          <br><br>
+          The namespace tells you the domain. Suffixes can distinguish roles when neccessary. That way, domain logic isn't scattered across different folders but stay together.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#semantic-naming" class="nav-link">←</a>
+        <a href="#chapter-orchestration" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ============================================================
+         CHAPTER 4: ORCHESTRATION & COMPOSITION
+         ============================================================ -->
+
+    <!-- ================================================================
+         Chapter Divider: Orchestration
+         ================================================================ -->
+    <section class="slide slide--accent" id="chapter-orchestration">
+      <div class="slide-inner">
+        <p class="chapter-label">Chapter 3</p>
+        <h2 class="slide-title slide-title--large">Orchestration</h2>
+        <p class="slide-subtitle">Controllers, Jobs, Mailers and Channels</p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#organize-by-domain" class="nav-link">←</a>
+        <a href="#quote-service-objects" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Quote: Service Objects
+         ================================================================ -->
+    <section class="slide slide--pattern" id="quote-service-objects">
+      <div class="slide-inner">
+        <div class="quote">
+          <p class="quote-text">Service objects are not meant to implement your business logic. They are meant to orchestrate your domain objects.</p>
+          <p class="quote-author">Jorge Manrubia, 37signals</p>
+        </div>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#chapter-orchestration" class="nav-link">←</a>
+        <a href="#faux-o" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Faux-O: The app/services Anti-Pattern
+         ================================================================ -->
+    <section class="slide slide--dark" id="faux-o">
+      <div class="slide-inner">
+        <h2 class="slide-title">The <code>app/services</code> directory</h2>
+
+        <ul class="takeaways">
+          <li><strong>Rails already provides orchestration</strong> — controllers connect the domain to the web, jobs connect it to background processing</li>
+          <li><strong>Service folders are procedural code in disguise</strong> — Sandi Metz calls this "Faux-O": code that looks object-oriented but retreats into procedures</li>
+          <li><strong>DDD is about a coherent domain</strong> — not siloed procedures that pull data out, operate on it, and push it back in</li>
+        </ul>
+
+        <p class="speaker-notes">
+          Jorge's explains that Rails already gives us the service objects we need.
+          Controllers orchestrate HTTP requests, Jobs orchestrate background work and so on.
+          They're thin layers that delegate to the domain—that's what a service should be.
+          <br><br>
+          When we add an app/services folder, we're often doing something different.
+          We're pulling logic out of domain objects, putting it into procedures.
+          Sandi Metz calls this "Faux-O"—it looks object-oriented because we have classes,
+          but we've lost the benefits of Object Oriented Design. Objects become data bags and behavior becomes scattered.
+          <br><br>
+          DDD is the antidote. It's about building a coherent domain where objects
+          encapsulate both data and behavior.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#quote-service-objects" class="nav-link">←</a>
+        <a href="#code-controller" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Code: Controller
+         ================================================================ -->
+    <section class="slide slide--dark" id="code-controller">
+      <div class="slide-inner">
+        <h2 class="slide-title">Thin orchestration layers</h2>
+
+        <div class="code-tabs">
+          <div class="code-tabs-nav">
+            <button class="code-tab active" data-tab="controller">app/controllers/cards/goldnesses_controller.rb</button>
+            <button class="code-tab" data-tab="job">app/jobs/card/activity_spike/detection_job.rb</button>
+          </div>
+
+          <div class="code-tab-content active" id="tab-controller">
+            <pre class="code-block"><code class="language-ruby">class Cards::GoldnessesController < ApplicationController
+  include CardScoped
+
+  def create
+    @card.gild
+  end
+
+  def destroy
+    @card.ungild
+  end
+  …
+end</code></pre>
+          </div>
+
+          <div class="code-tab-content" id="tab-job">
+            <pre class="code-block"><code class="language-ruby">class Card::ActivitySpike::DetectionJob < ApplicationJob
+  def perform(card)
+    card.detect_activity_spikes
+  end
+  …
+end</code></pre>
+          </div>
+
+          
+          <p class="slide-text" style="margin-top: 1rem;">
+            These are service objects as Eric Evans intended—thin layers with one job: orchestrate. They succeed by knowing less, not more.
+          </p>
+        </div>
+
+        <p class="speaker-notes">
+          So Controllers connect our domain models with the external world.
+          And Jobs work the same way—they're a thin layer of orchestration for our domain logic.
+          <br><br>
+          Jorge makes this point that controllers and jobs are already doing what service objects do. They orchestrate.
+          <br><br>
+          The difference is they're built into Rails, and most of the ceremony has been extracted away by the framework.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#faux-o" class="nav-link">←</a>
+        <a href="#concerns-composition" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Concerns + Composition
+         ================================================================ -->
+    <section class="slide slide--dark" id="concerns-composition">
+      <div class="slide-inner">
+        <h2 class="slide-title">Concerns + object composition = ❤️</h2>
+
+        <div class="code-tabs">
+          <div class="code-tabs-nav">
+            <button class="code-tab active" data-tab="model-concern">app/models/card/stallable.rb</button>
+            <button class="code-tab" data-tab="controller-concern">app/controllers/cards/goldnesses_controller.rb</button>
+            <button class="code-tab" data-tab="controller-object-composition">app/controllers/sessions_controller.rb</button>
+          </div>
+
+          <div class="code-tab-content active" id="tab-model-concern">
+            <pre class="code-block"><code class="language-ruby">module Card::Stallable
+  extend ActiveSupport::Concern
+
+  included do
+    after_update_commit :detect_activity_spikes_later
+  end
+
+  def detect_activity_spikes
+    Card::ActivitySpike::Detector.new(self).detect
+  end
+
+  private
+    def detect_activity_spikes_later
+      Card::ActivitySpike::DetectionJob.perform_later(self)
+    end
+  …
+end</code></pre>
+            <p class="slide-text">
+              The concern organizes the API. The <code>Detector</code> object handles the details.
+            </p>
+          </div>
+
+          <div class="code-tab-content" id="tab-controller-concern">
+            <pre class="code-block"><code class="language-ruby">class Cards::GoldnessesController < ApplicationController
+  include CardScoped
+
+  def create
+    @card.gild
+  end
+
+  def destroy
+    @card.ungild
+  end
+  …
+end</code></pre>
+            <p class="slide-text">
+              <code>CardScoped</code> handles lookup. The controller calls rich domain methods.
+            </p>
+          </div>
+
+          <div class="code-tab-content" id="tab-controller-object-composition">
+            <pre class="code-block"><code class="language-ruby">class SessionsController < ApplicationController
+  disallow_account_scope
+
+  def create
+    if identity = Identity.find_by_email_address(email_address)
+      redirect_to_session_magic_link identity.send_magic_link
+    else
+      signup = Signup.new(email_address: email_address)
+      
+      if signup.valid?(:identity_creation)
+        magic_link = signup.create_identity if Account.accepting_signups?
+        redirect_to_session_magic_link magic_link
+      else
+        head :unprocessable_entity
+      end
+    end
+  end
+
+  private
+    def email_address
+      params.expect(:email_address)
+    end
+  …
+end</code></pre>
+            <p class="slide-text">
+              The <code>Signup</code> form object handles complex orchestration.
+            </p>
+          </div>
+        </div>
+
+        <p class="speaker-notes">
+          So, concerns and object composition actually work great together.
+          <br><br>
+          The concern gives you a natural API to work with—you don't have to know about the complexity that might be hidden in an underlying object.
+          <br><br>
+          This works for Controllers as well.
+          A Controller can have concerns such as CardScoped, which handles looking up the card.
+          And it can use object composition to delegate more complex orchestration when necessary.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#code-controller" class="nav-link">←</a>
+        <a href="#takeaways" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ============================================================
+         TAKEAWAYS
+         ============================================================ -->
+
+    <!-- ================================================================
+         Key Takeaways
+         ================================================================ -->
+    <section class="slide slide--gradient" id="takeaways">
+      <div class="slide-inner">
+        <h2 class="slide-title">Takeaways</h2>
+        <p class="slide-subtitle" style="font-size: 1.25rem; margin-top: -2rem;">37signals' take on domain driven design</p>
+
+        <ul class="takeaways">
+          <li>Let the domain model take the center stage in your architecture.</li>
+          <li>Use concerns to organize your domain object traits.</li>
+          <li>Write code using clear, natural and ubiquitous language.</li>
+          <li>Minimize boilerplate and syntax to allow intent to be more directly accessible.</li>
+          <li>Controllers, Jobs, Mailers etc orchestrate; they don't hold business logic.</li>
+          <li>app/services are Faux-O, abdicating from OO design principles.</li>
+        </ul>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#concerns-composition" class="nav-link">←</a>
+        <a href="#questions" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Questions
+         ================================================================ -->
+    <section class="slide slide--accent" id="questions">
+      <div class="slide-inner">
+        <h2 class="slide-title slide-title--large">Questions?</h2>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#takeaways" class="nav-link">←</a>
+        <a href="#resources" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Resources
+         ================================================================ -->
+    <section class="slide slide--dark" id="resources">
+      <div class="slide-inner">
+        <h2 class="slide-title">Resources</h2>
+
+        <div class="resources-list">
+          <a href="https://www.youtube.com/watch?v=dvPXFnX60cg" class="resource-link" target="_blank">
+            <span class="resource-icon">🎬</span>
+            <span class="resource-text">
+              <strong>Jorge's Fizzy Tour</strong>
+              <span class="resource-url">youtube.com/watch?v=dvPXFnX60cg</span>
+            </span>
+          </a>
+
+          <a href="https://github.com/basecamp/fizzy" class="resource-link" target="_blank">
+            <span class="resource-icon">💻</span>
+            <span class="resource-text">
+              <strong>Fizzy Source Code</strong>
+              <span class="resource-url">github.com/basecamp/fizzy</span>
+            </span>
+          </a>
+          
+          <a href="https://www.bokus.com/bok/9780321125217/domain-driven-design/?utm_source=google&utm_medium=cpc&utm_campaign=Performance%20Max%20%7C%20Studentlitteratur%20Int&gad_source=1&gad_campaignid=20010627963&gbraid=0AAAAADu4EMtOeGjZEcE3HIJVnzlzywVJT&gclid=Cj0KCQiAm9fLBhCQARIsAJoNOct2_7NZRb32BlKKpUq3ucWcsgwKcCCTARSUolehrYyttZYIjYWcR1AaAosCEALw_wcB" class="resource-link" target="_blank">
+            <span class="resource-icon">📘</span>
+            <span class="resource-text">
+              <strong>Eric Evans' Domain Driven Design book</strong>
+              <span class="resource-url">bokus.com/bok/9780321125217</span>
+            </span>
+          </a>
+
+          <a href="https://ramhoj.github.io/ddd-presentation/" class="resource-link" target="_blank">
+            <span class="resource-icon">📊</span>
+            <span class="resource-text">
+              <strong>This Presentation</strong>
+              <span class="resource-url">ramhoj.github.io/ddd-presentation</span>
+            </span>
+          </a>
+        </div>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#questions" class="nav-link">←</a>
+        <span class="nav-disabled">→</span>
+      </nav>
+    </section>
+
+  </div>
+
+  <!-- Notes toggle button (training mode) -->
+  <button class="notes-toggle" id="notes-toggle" title="Toggle notes (N)">notes</button>
+
+  <!-- Fixed UI elements -->
+  <div class="slide-counter" id="slide-counter"></div>
+  <nav class="slide-nav" id="slide-nav">
+    <a href="#" class="nav-link" id="nav-prev">←</a>
+    <a href="#" class="nav-link" id="nav-next">→</a>
+  </nav>
+
+  <!-- Prism.js for syntax highlighting with autoloader -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+  <script>
+    Prism.plugins.autoloader.languages_path = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/';
+  </script>
+
+  <!-- Keyboard navigation -->
+  <script src="keyboard.js"></script>
+</body>
+</html>

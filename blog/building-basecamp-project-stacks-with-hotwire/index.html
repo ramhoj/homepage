@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Building Basecamp Project Stacks with Hotwire – Nicklas Ramhöj Holtryd</title>
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="../../prism-theme.css">
+  <link rel="stylesheet" href="../../site.css">
+</head>
+<body>
+  <header class="post-header">
+    <a href="../../index.html" class="back-link">← Home</a>
+    <h1>Building Basecamp Project Stacks with Hotwire</h1>
+    <p class="post-meta">Originally published on the 37signals dev blog · 2023-11-07</p>
+  </header>
+
+  <article class="post">
+    <p class="lede">This post covers how we shipped Stacks — a way to visually group projects in Basecamp — using Hotwire and Rails. What made it interesting was how little new code it actually took, largely because of how well the existing architecture supported the change.</p>
+
+    <p>Stacks lets Basecamp users collapse related projects into a named group on the home screen. Under the hood, the feature uses Rails delegated types to model stacks as a lightweight layer over existing project records. The drag-and-drop behavior, already present in the app, required only small additions to handle the new grouping logic. Turbo and Stimulus handled the dynamic UI updates without reaching for a heavier JavaScript solution.</p>
+
+    <p>The post walks through the reasoning behind these choices and how keeping the model and controller changes focused made the whole feature easier to reason about and maintain.</p>
+
+    <p><em>I wrote this during my time at 37signals. It reflects the kind of problems we enjoyed solving there — real features, real constraints, real Rails.</em></p>
+
+    <p class="canonical-cta">
+      <a href="https://dev.37signals.com/building-basecamp-project-stacks-with-hotwire/" class="primary-link" target="_blank" rel="noopener">
+        Read the full article on dev.37signals.com ↗
+      </a>
+    </p>
+  </article>
+
+  <footer class="post-footer">
+    <p><a href="../../index.html">Back to homepage</a></p>
+  </footer>
+</body>
+</html>

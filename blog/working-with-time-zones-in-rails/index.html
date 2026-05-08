@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Working with Time Zones in Rails</title>
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="../../prism-theme.css">
+  <link rel="stylesheet" href="../../site.css">
+</head>
+<body>
+  <header class="post-header">
+    <a href="../../index.html" class="back-link">← Home</a>
+    <h1>Working with Time Zones in Rails</h1>
+    <p class="post-meta">Published 2012-03-20 · Last updated 2016-06-22</p>
+  </header>
+
+  <article class="post">
+    <p class="lede">Rails provides great tools for working with time zones but there's still a lot of things that can go wrong. This blog post aims to shed some light on these gotchas and provide solutions to the most common problems.</p>
+
+    <p>The one that probably has tricked me the most times is the fact that Rails fools you to believe it got you all covered all the time (pardon the pun). Don't get me wrong. I want Rails to do as much work for me as possible. But I've learnt the hard way that I can't get away with not knowing when and how Rails is helping me. Another gotcha is the fact that you have more time zones in play than you might first believe. Consider the following: db, server, dev machine, system configured, user specific configured and the browser.</p>
+
+    <h2>Configure your Rails app</h2>
+
+    <p>So what tools do we have at our disposal as Rails developers? The most important one is the <code>config.time_zone</code> configuration in your <code>config/application.rb</code> file. ActiveRecord will help you convert from and to (which the documentation fails to explain) UTC and the time zone of your choice. This means that if all you're doing is having users post times through a form and use Active Record to persist it you're good to go.</p>
+
+    <h2>Processing time information</h2>
+
+    <p>So what about actually doing something with the time information before persisting it? That's when it becomes tricky.</p>
+
+    <h3>Parsing</h3>
+
+    <p>When parsing time information it's important to never do it without specifying the time zone. The best way to do this is to use <code>Time.zone.parse</code> (which will use the time zone specified in <code>config.time_zone</code>) instead of just <code>Time.parse</code> (which will use the computer's time zone).</p>
+
+    <h3>Work with Numerical and ActiveRecord attributes</h3>
+
+    <p>Method calls like <code>2.hours.ago</code> uses the time zone you've configured, so use these if you can! The same thing is true for time attributes on ActiveRecord models.</p>
+
+<pre><code class="language-ruby">post = Post.first
+post.published_at #=&gt; Thu, 22 Mar 2012 00:00:00 CDT -05:00</code></pre>
+
+    <p>ActiveRecord fetches the UTC time from the database and converts it to the time zone in <code>config.time_zone</code> for you.</p>
+
+    <h3>Date vs Time</h3>
+
+    <p>Time has date information but <code>Date</code> does NOT have time information. Even if you don't think you care you might realize that you do sooner then later. Be safe and use <code>Time</code> (or <code>DateTime</code> if you need support for times very far from the present).</p>
+
+    <p>But let's say you're stuck with a Date that you need to treat as a Time, at least make sure to convert it to your configured time zone:</p>
+
+<pre><code class="language-ruby">1.day.from_now # =&gt; Fri, 03 Mar 2012 22:04:47 JST +09:00
+Date.current.in_time_zone # =&gt; Fri, 02 Mar 2012 00:00:00 JST +09:00</code></pre>
+
+    <p>Never use:</p>
+
+<pre><code class="language-ruby">Date.today.to_time # =&gt; 2012-03-02 00:00:00 +0100</code></pre>
+
+    <h2>Querying</h2>
+
+    <p>Since Rails know that your time information is stored as UTC in the database it will convert any time you give it to UTC.</p>
+
+<pre><code class="language-ruby">Post.where(["posts.published_at &gt; ?", Time.current])</code></pre>
+
+    <p>Just be sure to never construct the query string by hand and always use Time.current as the base and you should be safe.</p>
+
+    <h2>Working with APIs</h2>
+
+    <h3>Supplying</h3>
+
+    <p>Building a web API for others to consume? Make sure to always send all time data as UTC (and specify that this is the case).</p>
+
+<pre><code class="language-ruby">Time.current.utc.iso8601 #=&gt; "2012-03-16T14:55:33Z"</code></pre>
+
+    <p>Read more about why iso8601 is advisable here: <a href="http://devblog.avdi.org/2009/10/25/iso8601-dates-in-ruby/" target="_blank" rel="noopener">http://devblog.avdi.org/2009/10/25/iso8601-dates-in-ruby/</a></p>
+
+    <h3>Consuming</h3>
+
+    <p>When you get the time information from an external API which you don't have control over you simply need to figure out the format and time zone it's sent to you with. Because Time.zone.parse might not work with the format you receive you might need to use:</p>
+
+<pre><code class="language-ruby">Time.strptime(time_string, "%Y-%m-%dT%H:%M:%S%z").in_time_zone</code></pre>
+
+    <p>This assumes time_string a iso8601 formated string. <code>strptime</code> will throw a very unintuitive error complaining on the format argument when in reality the problem is that the time string's format mismatches the format template argument. <code>in_time_zone</code> defaults to use the Rails configured time zone.</p>
+
+    <p>Why there's no <code>strptime</code> method on <code>Time.zone</code> when there's a <code>parse</code> beats me.</p>
+
+    <h2>Working with multiple user time zones</h2>
+
+    <p>Many systems needs to support users entering and viewing time information in a variety of time zones. To achieve this you need to store each user's time zone (probably just one of the time zone string names found in <code>rake time:zones:all</code>). Then to actually use that time zone the most common pattern is to simply create a private method in your ActionController and run it as an around action.</p>
+
+<pre><code class="language-ruby">around_action :user_time_zone, if: :current_user
+
+def user_time_zone(&amp;block)
+  Time.use_zone(current_user.time_zone, &amp;block)
+end</code></pre>
+
+    <p>This will do the same thing as <code>config.time_zone</code> but on a per request basis. I still recommend to change the default <code>config.time_zone</code> to a time zone that is a good default for your users. (Thank you Matt Bridges for pointing out the potential problems with using a before_filter instead of an around_action.)</p>
+
+    <h2>Using correct time zone information</h2>
+
+    <p><a href="https://github.com/lazylester" target="_blank" rel="noopener">lazylester</a> informed me that while working on a project in Samoa he discovered that MacOS' (last tested on 10.12.6) default database of time zone offsets is wrong. To solve this simply add <code>gem "tzinfo-data"</code> to your Gemfile.</p>
+
+    <h2>Testing</h2>
+
+    <p>All the above is something that your tests should catch for you. The problem is that you as the user and your computer as the development server happen to reside in the same time zone. This is rarely the case once you push things to production.</p>
+
+    <p>There is <a href="https://github.com/alindeman/zonebie" target="_blank" rel="noopener">Zonebie</a>, a gem that helps you deal with this. I haven't had time to try it out myself yet, but it looks promising. If you find this to be overkill, at least make sure that your tests run with <code>Time.zone</code> set to another time zone than the one your development machine is in!</p>
+
+    <h2>Cheat Sheet</h2>
+
+    <h3>DOs</h3>
+
+<pre><code class="language-ruby">2.hours.ago # =&gt; Thu, 27 Aug 2015 14:39:36 AFT +04:30
+1.day.from_now # =&gt; Fri, 28 Aug 2015 16:39:36 AFT +04:30
+Time.zone.parse("2015-08-27T12:09:36Z") # =&gt; Thu, 27 Aug 2015 16:39:36 AFT +04:30
+Time.current # =&gt; Thu, 27 Aug 2015 16:39:36 AFT +04:30
+Time.current.utc.iso8601 # When supliyng an API ("2015-08-27T12:09:36Z")
+Time.strptime("2015-08-27T12:09:36Z", "%Y-%m-%dT%H:%M:%S%z").in_time_zone # If you can't use Time.zone.parse (Thu, 27 Aug 2015 16:39:36 AFT +04:30)
+Date.current # If you really can't have a Time or DateTime for some reason (Thu, 27 Aug 2015)
+Date.current.in_time_zone # If you have a date and want to make the best out of it (Thu, 27 Aug 2015 00:00:00 AFT +04:30)</code></pre>
+
+    <h3>DON'Ts</h3>
+
+<pre><code class="language-ruby">Time.now # Returns system time and ignores your configured time zone. (2015-08-27 14:09:36 +0200)
+Time.parse("2015-08-27T12:09:36Z") # Will assume time string given is in the system's time zone. (2015-08-27 12:09:36 UTC)
+Time.strptime("2015-08-27T12:09:36Z", "%Y-%m-%dT%H:%M:%S%z") # Same problem as with Time.parse. (2015-08-27 12:09:36 UTC)
+Date.today # This could be yesterday or tomorrow depending on the machine's time zone, see https://github.com/ramhoj/time-zone-article/issues/1 for more info. (Thu, 27 Aug 2015)</code></pre>
+
+    <h2>Epilogue</h2>
+
+    <p>I hope you've learned something from this post. I sure did while writing it! If you have any feedback on how it can be improved, or if you spot any errors, please let me know by posting a comment below!</p>
+
+    <h2>Ruby and Rails version</h2>
+
+    <p>This article was first written in March 2012. Back then Rails 3.2 was the new hot and as you all know a lot happens in Rails-land in two and a half years and will continue to do so. I will do my best to keep the article accurate and up to date with the latest versions of Rails. If you spot anything that is reported deprecated or not working please let me know in the comment section below!</p>
+
+    <ul>
+      <li>Article publish date: <strong>2012-03-20</strong></li>
+      <li>Article last updated: <strong>2016-06-22</strong></li>
+      <li>Last verified Rails version: <strong>6.0.2</strong></li>
+      <li>Last verified Ruby version: <strong>2.6.5</strong></li>
+      <li>OS: <strong>Mac OS X 10.13.6 (Hight Sierra), Ubuntu 14.04.4 LTS (GNU/Linux 3.13.0-63-generic x86_64)</strong></li>
+    </ul>
+
+    <p>There is a <a href="https://github.com/ramhoj/time-zone-article" target="_blank" rel="noopener">git repository</a> which you can clone:</p>
+
+<pre><code class="language-ruby">git clone git@github.com:ramhoj/time-zone-article.git
+cd time-zone-article
+bundle install
+rake db:create:all db:migrate db:test:prepare
+bundle exec rspec spec/</code></pre>
+
+    <p>The Rails application is running on the version defined above and has been verified to work under the described Ruby version above. If you want to make sure things are working in the version of Rails or Ruby that you're using please fork the repository and make the necessary adjustments and run the test suite. If you want more in-debt, hands-on of the examples this repository's test suite aims to help with this too.</p>
+
+    <h3>Changelog</h3>
+
+    <p>See the <a href="https://github.com/ramhoj/time-zone-article/commits/master" target="_blank" rel="noopener">git repository's commits</a>.</p>
+  </article>
+
+  <footer class="post-footer">
+    <p>Source on <a href="https://github.com/ramhoj/time-zone-article" target="_blank" rel="noopener">GitHub</a> · <a href="../../index.html">Back to homepage</a></p>
+  </footer>
+</body>
+</html>

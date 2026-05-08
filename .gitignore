@@ -1,0 +1,21 @@
+.DS_Store
+
+# macOS
+.AppleDouble
+.LSOverride
+Icon?
+.Spotlight-V100
+.Trashes
+._*
+
+# Private sources
+sources/cv.txt
+sources/cover-letter.txt
+sources/about.txt
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

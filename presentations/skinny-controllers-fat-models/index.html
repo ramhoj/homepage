@@ -89,7 +89,8 @@ end</code></pre>
         </div>
 
         <p class="slide-text" style="margin-top: 1rem;">
-          Diffing tags, logging the activity, broadcasting the change — all domain behavior, all in the controller.
+          Diffing tags, logging the activity, broadcasting the change — all domain behavior, all in the controller.<br>
+          And the non-RESTful <code>#tag</code> action is a hint: this might really belong on a <code>TagsController</code> or <code>TaggingsController</code>.
         </p>
 
         <p class="speaker-notes">
@@ -272,26 +273,26 @@ end</code></pre>
 
         <div class="code-tabs">
           <div class="code-tabs-nav">
-            <button class="code-tab active" data-tab="actionjob">app/jobs/card/publish_job.rb</button>
-            <button class="code-tab" data-tab="sidekiq">app/workers/card/publish_worker.rb</button>
+            <button class="code-tab active" data-tab="actionjob">app/jobs/candidate/reindex_job.rb</button>
+            <button class="code-tab" data-tab="sidekiq">app/jobs/candidate/reindex_job.rb &nbsp;(Sidekiq)</button>
           </div>
 
           <div class="code-tab-content active" id="tab-actionjob">
-            <pre class="code-block"><code class="language-ruby">class Card::PublishJob &lt; ApplicationJob
-  def perform(card)
-    card.publish
+            <pre class="code-block"><code class="language-ruby">class Candidate::ReindexJob &lt; ApplicationJob
+  def perform(candidate)
+    candidate.reindex
   end
 end</code></pre>
             <p class="slide-text">ActionJob + GlobalID handle the lookup for you. The body collapses to the model call.</p>
           </div>
 
           <div class="code-tab-content" id="tab-sidekiq">
-            <pre class="code-block"><code class="language-ruby">class Card::PublishJob
+            <pre class="code-block"><code class="language-ruby">class Candidate::ReindexJob
   include Sidekiq::Job
 
-  def perform(card_id)
-    card = Card.find(card_id)
-    card.publish
+  def perform(candidate_id)
+    candidate = Candidate.find(candidate_id)
+    candidate.reindex
   end
 end</code></pre>
             <p class="slide-text">Sidekiq passes raw IDs — it's slighly faster but can drown the important line in boilerplate.</p>

@@ -237,9 +237,9 @@ end</code></pre>
   include CandidateScoped
 
   def update
-    authorize candidate
-    candidate.update(permitted_attributes(candidate))
-    respond_with_json candidate
+    authorize @candidate
+    candidate.update permitted_attributes(@candidate)
+    respond_with_json @candidate
   end
 end</code></pre>
         </div>
@@ -286,15 +286,15 @@ end</code></pre>
           </div>
 
           <div class="code-tab-content" id="tab-sidekiq">
-            <pre class="code-block"><code class="language-ruby">class Card::PublishWorker
-  include Sidekiq::Worker
-  include CardScoped
+            <pre class="code-block"><code class="language-ruby">class Card::PublishJob
+  include Sidekiq::Job
 
   def perform(card_id)
-    scoped_card(card_id).publish
+    card = Card.find(card_id)
+    card.publish
   end
 end</code></pre>
-            <p class="slide-text">Sidekiq passes raw IDs — the lookup belongs in a shared concern, just like in controllers.</p>
+            <p class="slide-text">Sidekiq passes raw IDs — it's slighly faster but can drown the important line in boilerplate.</p>
           </div>
         </div>
 
@@ -440,7 +440,7 @@ end</code></pre>
           <li>The standard shape: authenticate → lookup → authorize → model call → response.</li>
           <li>Share the shape with concerns — <code>ApplicationController</code>, <code>Scoped</code>.</li>
           <li>Optimize for shape recognition, not cleverness.</li>
-          <li>Think domain-first, not UI-first.</li>
+          <li>Think domain-first, over UI-first.</li>
           <li>Lean on RESTful actions to discover missing objects.</li>
         </ul>
       </div>

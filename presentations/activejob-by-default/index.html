@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Default to ActiveJob</title>
+
+  <!-- Teamtailor fonts: Inter -->
+  <link rel="preconnect" href="https://rsms.me/">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+
+  <!-- Prism.js for syntax highlighting -->
+  <link rel="stylesheet" href="prism-theme.css">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a href="../../index.html" class="home-link">← Home</a>
+  <div class="presentation">
+
+    <!-- ================================================================
+         Title
+         ================================================================ -->
+    <section class="slide slide--gradient" id="title">
+      <div class="slide-inner">
+        <h1 class="slide-title slide-title--large">Default to ActiveJob</h1>
+        <p class="slide-subtitle">Sidekiq stays the engine. ActiveJob becomes the authoring API — and the default for ordinary jobs.</p>
+      </div>
+
+      <nav class="slide-nav">
+        <span class="nav-disabled">←</span>
+        <a href="#context" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Context
+         ================================================================ -->
+    <section class="slide slide--dark" id="context">
+      <div class="slide-inner">
+        <h2 class="slide-title">Where this comes from</h2>
+        <p class="slide-text">
+          A competency-merge PR added an <code>ApplicationJob</code>. The platform team pushed back: the codebase
+          convention is native <code>Sidekiq::Job</code>, and they're right that most of <code>app/jobs</code> is exactly that.
+        </p>
+        <p class="slide-text" style="margin-top: 1.5rem;">
+          That conversation settled a single job. This deck is the broader question it raised, brought to where it belongs —
+          a proposal, not a PR exception:
+        </p>
+        <p class="slide-text" style="margin-top: 1.5rem; font-weight: 600;">
+          Should <em>ActiveJob</em> be our default way to write a background job?
+        </p>
+
+        <p class="speaker-notes">
+          I want to be upfront: this is a continuation of a code review thread, and I lost the local battle on purpose —
+          one PR isn't the place to set a team-wide convention. So I'm bringing the actual question here instead.
+          <br><br>
+          The platform team's review was sharp and a lot of it landed. I'll be honest about which parts.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#title" class="nav-link">←</a>
+        <a href="#thesis" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Thesis
+         ================================================================ -->
+    <section class="slide slide--accent" id="thesis">
+      <div class="slide-inner">
+        <p class="chapter-label">The proposal</p>
+        <h2 class="slide-title slide-title--large">ActiveJob is an API, not an engine</h2>
+        <p class="slide-subtitle">
+          ActiveJob doesn't replace Sidekiq — it runs <strong>on</strong> Sidekiq. The choice isn't
+          "ActiveJob or Sidekiq." It's which <em>authoring surface</em> we reach for first.
+        </p>
+        <p class="slide-text" style="margin-top: 2rem;">
+          Default to ActiveJob for ordinary jobs. Drop to native <code>Sidekiq::Job</code> when you need
+          something only Sidekiq offers. Today that default is inverted.
+        </p>
+
+        <p class="speaker-notes">
+          This is the single most important framing and the one that keeps the discussion honest.
+          <br><br>
+          Nobody is proposing we remove Sidekiq. Sidekiq Enterprise, super_fetch, the reliable scheduler — all of that
+          stays. The Sidekiq adapter is what executes ActiveJob. So the real question is narrow: when a developer sits
+          down to write a job, what's the default shape of the file?
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#context" class="nav-link">←</a>
+        <a href="#today" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Where we are today
+         ================================================================ -->
+    <section class="slide slide--dark" id="today">
+      <div class="slide-inner">
+        <h2 class="slide-title">Today the default is "roll your own"</h2>
+        <p class="slide-text">
+          New native jobs repeat the same hand-written plumbing: id arguments, <code>find_by(id:)</code> guards,
+          explicit <code>rescue</code> blocks, a single global <code>retry:</code> number, and manual <code>Current</code> wiring.
+        </p>
+
+        <div class="code-container" style="margin-top: 2rem;">
+          <span class="code-filename">the shape every native job re-derives</span>
+          <pre class="code-block"><code class="language-ruby">class SomeJob
+  include Sidekiq::Job
+  sidekiq_options queue: :default, retry: 3
+
+  def perform(some_id, other_id)
+    some = SomeRecord.find_by(id: some_id) or return
+    other = OtherRecord.find_by(id: other_id) or return
+    Current.company = some.company
+    # ...the two lines of actual work...
+  rescue SomeProgrammerError
+    # discard
+  end
+end</code></pre>
+        </div>
+
+        <p class="slide-text" style="margin-top: 1.5rem; font-size: 1rem;">
+          None of the boilerplate is logic. It's a re-implementation of things the framework already does.
+        </p>
+
+        <p class="speaker-notes">
+          This is descriptive, not a dig. The pattern works. The point is just that each new job hand-rolls the same
+          scaffolding, and the actual intent — the two lines of work — gets buried in the middle.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#thesis" class="nav-link">←</a>
+        <a href="#pro-contract" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Pro 1: declarative error contract
+         ================================================================ -->
+    <section class="slide slide--dark" id="pro-contract">
+      <div class="slide-inner">
+        <h2 class="slide-title">The error contract reads at the top</h2>
+
+        <div class="comparison">
+          <div class="comparison-side comparison-side--good">
+            <h3>ActiveJob — policy as configuration</h3>
+            <div class="code-container">
+              <pre class="code-block"><code class="language-ruby">class Merge::Job &lt; ApplicationJob
+  discard_on ActiveRecord::RecordNotFound
+  discard_on SelfMergeError
+  retry_on ActiveRecord::RecordInvalid, attempts: 3
+
+  def perform(target:, absorbing_ids:, user:)
+    target.merge absorbing_ids:, user:
+  end
+end</code></pre>
+            </div>
+            <p class="slide-text" style="margin-top: 1rem; font-size: 1rem;">
+              Read the whole failure policy without reading a line of business logic.
+            </p>
+          </div>
+
+          <div class="comparison-side comparison-side--bad">
+            <h3>Native — policy spread through the body</h3>
+            <div class="code-container">
+              <pre class="code-block"><code class="language-ruby">def perform(target_id, absorbing_ids, user_id)
+  target = ScorecardCriterium.find_by(id: target_id) or return
+  user = User.find_by(id: user_id) or return
+  Current.company = target.company
+  target.merge absorbing: scope(absorbing_ids), user:
+rescue SelfMergeError
+  # discard
+end
+# ...plus sidekiq_retry_in for the RecordInvalid budget</code></pre>
+            </div>
+            <p class="slide-text" style="margin-top: 1rem; font-size: 1rem;">
+              The contract is real but scattered: an <code>or return</code> mid-line, a rescue at the bottom, a retry block elsewhere.
+            </p>
+          </div>
+        </div>
+
+        <p class="speaker-notes">
+          Both are correct. This is a readability argument, and I'll say so plainly — it's a style advantage, not a
+          structural one. But "you can read the failure policy as a block of config" is worth something on a team where
+          lots of people touch each other's jobs.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#today" class="nav-link">←</a>
+        <a href="#pro-retry" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Pro 2: the retry receipt
+         ================================================================ -->
+    <section class="slide slide--dark" id="pro-retry">
+      <div class="slide-inner">
+        <h2 class="slide-title">Per-exception retry budgets, for free</h2>
+        <p class="slide-text">
+          This is the concrete one. <code>retry_on</code> takes a budget <em>per error class</em>. Native
+          <code>sidekiq_options retry:</code> is a single global number — it caps every exception the same.
+        </p>
+
+        <div class="comparison" style="margin-top: 1.5rem;">
+          <div class="comparison-side comparison-side--good">
+            <h3>ActiveJob — one line per class</h3>
+            <div class="code-container">
+              <pre class="code-block"><code class="language-ruby">retry_on ActiveRecord::RecordInvalid, attempts: 3
+# everything else keeps the default budget</code></pre>
+            </div>
+          </div>
+
+          <div class="comparison-side comparison-side--bad">
+            <h3>Native — hand-rolled discrimination</h3>
+            <div class="code-container">
+              <pre class="code-block"><code class="language-ruby">sidekiq_options queue: :default # default budget (25)
+
+sidekiq_retry_in do |retry_count, exception|
+  :discard if exception.is_a?(ActiveRecord::RecordInvalid) &&
+    retry_count &gt;= RECORD_INVALID_MAX_ATTEMPTS - 1
+end</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <p class="slide-text" style="margin-top: 1.5rem; font-size: 1rem;">
+          The trap: writing <code>retry: 3</code> to "match" <code>attempts: 3</code> silently shrinks the
+          default budget (25) down to 3 for <em>transient</em> infra errors — deadlocks, timeouts — giving up on
+          recoverable work faster. The faithful native port is the block on the right.
+        </p>
+
+        <p class="speaker-notes">
+          This came straight out of the merge PR. The reviewer proposed retry: 3 as the port of retry_on attempts: 3.
+          It looks equivalent and isn't — retry_on scopes the budget to one exception class; retry: 3 is global.
+          <br><br>
+          So the honest native equivalent is a sidekiq_retry_in block that branches on the exception. Which we have a
+          pattern for — OpenAI::TransientRetryable, TriggerNowJob — but it's branching logic where ActiveJob is one
+          declarative line. This is the cleanest example of the framework already solving something we re-solve by hand.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#pro-contract" class="nav-link">←</a>
+        <a href="#pro-arguments" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Pro 3: arguments and deploy safety
+         ================================================================ -->
+    <section class="slide slide--dark" id="pro-arguments">
+      <div class="slide-inner">
+        <h2 class="slide-title">Arguments that survive a deploy</h2>
+
+        <div class="ddd-principles">
+          <div class="ddd-principle">
+            <span class="ddd-principle-icon">🔑</span>
+            <h3>Keyword args</h3>
+            <p>GlobalID lets you pass records and keywords. Adding or reordering an argument doesn't silently break jobs already in the queue mid-deploy, the way positional args can.</p>
+          </div>
+
+          <div class="ddd-principle">
+            <span class="ddd-principle-icon">📦</span>
+            <h3>Record loading</h3>
+            <p>Records serialize to a GlobalID and reload on perform. A record deleted since enqueue raises <code>RecordNotFound</code> → handled by <code>discard_on</code>, declaratively.</p>
+          </div>
+
+          <div class="ddd-principle">
+            <span class="ddd-principle-icon">🧭</span>
+            <h3>Honest caveat</h3>
+            <p>GlobalID is <strong>not</strong> "extra queries." It runs the same <code>find</code> your <code>perform</code> would — just earlier, in the deserialization layer. Same lookups, different place.</p>
+          </div>
+        </div>
+
+        <p class="speaker-notes">
+          The deploy-safety point is the one the reviewer explicitly agreed was real. Positional args plus a signature
+          change plus jobs in flight across a deploy is a genuine foot-gun.
+          <br><br>
+          The third card is me retracting one of my own earlier arguments. I'd claimed GlobalID adds two queries. It
+          doesn't — it's the same find, just moved earlier. If I want this pitch to survive scrutiny I can't lean on a
+          claim I already know is wrong.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#pro-retry" class="nav-link">←</a>
+        <a href="#pro-plumbing" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Pro 4: less plumbing, more familiarity
+         ================================================================ -->
+    <section class="slide slide--dark" id="pro-plumbing">
+      <div class="slide-inner">
+        <h2 class="slide-title">Less to write, less to learn</h2>
+
+        <ul class="takeaways">
+          <li><strong>Less plumbing.</strong> No manual id passing, <code>find_by</code> guards, or rescue scaffolding — the framework does it.</li>
+          <li><strong>Framework-standard.</strong> Any Rails developer already knows <code>ApplicationJob</code>, <code>retry_on</code>, <code>perform_later</code>. Less project-specific lore to onboard into.</li>
+          <li><strong>Instrumentation.</strong> ActiveJob emits <code>ActiveSupport::Notifications</code> for enqueue / perform / retry / discard — a uniform hook for metrics and logs.</li>
+          <li><strong>Discards stay observable.</strong> <code>discard_on</code> makes "give up" a named <code>discard.active_job</code> event — visible in APM and assertable in a test. The native <code>find_by … or return</code> / <code>rescue</code> equivalents just return: Sidekiq logs a processed job, and nothing — in prod or in a spec — tells a deliberate discard apart from a no-op run.</li>
+          <li><strong>Portability.</strong> The queue backend is an adapter. If we ever evaluate alternatives, ActiveJob jobs move without rewrites. (Minor, but real.)</li>
+        </ul>
+
+        <p class="speaker-notes">
+          The onboarding point is underrated. New hires arrive knowing ActiveJob from every other Rails app. Native
+          Sidekiq conventions — our middleware stack, our retry idioms — are local knowledge they have to absorb.
+          <br><br>
+          On the discard point, be precise: the win is the <code>discard.active_job</code> notification, not a magic test
+          matcher. Our committed native spec and the original ActiveJob spec both assert give-up cases with
+          <code>not_to raise_error</code> — so don't claim we "lost a matcher," that's checkable and false. The honest,
+          unshootable claim is narrower: a native <code>or return</code> / <code>rescue</code> is observationally
+          identical to a successful no-op, while <code>discard_on</code> fires an instrumented event you can subscribe to.
+          <br><br>
+          I'm flagging portability as minor on purpose. It's a real property but a weak argument on its own; I don't
+          want to oversell it.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#pro-arguments" class="nav-link">←</a>
+        <a href="#cons" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Honest cons
+         ================================================================ -->
+    <section class="slide slide--accent" id="cons">
+      <div class="slide-inner">
+        <p class="chapter-label">The honest part</p>
+        <h2 class="slide-title">Where native Sidekiq genuinely wins</h2>
+
+        <ul class="takeaways">
+          <li><strong>Overhead.</strong> The adapter adds a wrapper and (de)serialization per job. Negligible for ordinary jobs; real at very high throughput and fan-out — exactly where you'd stay native.</li>
+          <li><strong>Sidekiq-only features.</strong> Batches (we use <code>Sidekiq::Batch</code> in the candidate merger), Enterprise unique jobs, <code>sidekiq_retry_in</code>, fine-grained <code>sidekiq_options</code> — not first-class from an ActiveJob class.</li>
+          <li><strong>Middleware interaction.</strong> Our server middleware is built around native jobs; ActiveJob wraps them in <code>JobWrapper</code>, which middleware has to special-case (our <code>Current</code>-class middleware already does). Tenant-on-retry through the adapter has bitten us before.</li>
+          <li><strong>Retry layering.</strong> <code>retry_on</code> / <code>discard_on</code> sit <em>on top of</em> Sidekiq's own retry. Worth understanding how the two compose rather than assuming one cancels the other.</li>
+        </ul>
+
+        <p class="speaker-notes">
+          I'm putting the cons on an accent slide so they read as a deliberate part of the argument, not fine print.
+          <br><br>
+          The throughput point is the platform team's strongest, and it's correct — Sidekiq is leaner per job. The
+          feature-access point is concrete: a job that needs Batches simply can't be an ActiveJob. And I want to credit
+          the middleware concern; it's real, even if it didn't apply to the specific job we were arguing about.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#pro-plumbing" class="nav-link">←</a>
+        <a href="#myths" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         What this is NOT
+         ================================================================ -->
+    <section class="slide slide--dark" id="myths">
+      <div class="slide-inner">
+        <h2 class="slide-title">What I'm <em>not</em> claiming</h2>
+        <p class="slide-subtitle" style="margin-bottom: 2rem;">So this doesn't get shot down on a point I never made.</p>
+
+        <ul class="takeaways">
+          <li><strong>Not</strong> "drop Sidekiq." It stays the engine — Enterprise, super_fetch, reliable scheduler, all of it.</li>
+          <li><strong>Not</strong> "ActiveJob is faster." It isn't. There's measurable overhead. The operational read on that is correct.</li>
+          <li><strong>Not</strong> "GlobalID saves queries." Same lookups, moved earlier. No saving, no extra cost.</li>
+          <li><strong>Not</strong> a big-bang migration. Existing jobs stay; this is about the default for new ones.</li>
+          <li>And the platform team isn't "SRE" — it's a developer team with a wider remit. The operational lens is a strength here, not an opposing camp.</li>
+        </ul>
+
+        <p class="speaker-notes">
+          This slide is insurance. Every one of these is a claim someone could reasonably assume I'm making, and each
+          one is either false or not mine. Clearing them up front means the discussion stays on the actual proposal.
+          <br><br>
+          The last bullet is a correction I owe the platform team — I framed their view as "SRE" in the thread and they
+          rightly pushed back. Naming that here is just good faith.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#cons" class="nav-link">←</a>
+        <a href="#proposal" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Proposal
+         ================================================================ -->
+    <section class="slide slide--dark" id="proposal">
+      <div class="slide-inner">
+        <h2 class="slide-title">Concretely</h2>
+
+        <div class="comparison">
+          <div class="comparison-side comparison-side--good">
+            <h3>Default → ApplicationJob</h3>
+            <ul class="takeaways">
+              <li>Ordinary work: a record, some side effects, simple retry/discard rules.</li>
+              <li>The 80% case.</li>
+            </ul>
+          </div>
+
+          <div class="comparison-side comparison-side--bad">
+            <h3>Reach for native Sidekiq when…</h3>
+            <ul class="takeaways">
+              <li>You need Batches, Enterprise unique, or custom <code>sidekiq_options</code>.</li>
+              <li>Very high throughput / fan-out where overhead matters.</li>
+              <li>You need direct middleware or retry-backoff control.</li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="slide-text" style="margin-top: 1.5rem; font-size: 1rem;">
+          Make <code>Current</code> / tenant context adapter-agnostic so neither style can lose it. Write the default down.
+          The consistency argument cuts both ways — it's only worth anything once we've picked one and documented it.
+        </p>
+
+        <p class="speaker-notes">
+          The "reach for native when" list is deliberately specific so the rule is decidable, not a vibe. If a job hits
+          one of those, native is the right call and the proposal says so.
+          <br><br>
+          The tenant-context point matters regardless of which way we go — it's the actual root of the middleware
+          concern, and fixing it de-risks both styles.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#myths" class="nav-link">←</a>
+        <a href="#decide" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Decide as a team
+         ================================================================ -->
+    <section class="slide slide--accent" id="decide">
+      <div class="slide-inner">
+        <h2 class="slide-title slide-title--large">This is a team call</h2>
+        <p class="slide-subtitle">
+          Consistency is an argument for picking one default <em>going forward</em> — we agree on that, we just disagree
+          on which. That's decided here, in a Campfire topic or a Notion proposal, not inside one PR.
+        </p>
+
+        <p class="speaker-notes">
+          This is me agreeing with the reviewer's framing explicitly. The right venue for a convention is a team
+          discussion. If we land on native Sidekiq, I'm aligned and the one job I converted is already there. If we land
+          on ActiveJob-by-default, we've got a direction.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#proposal" class="nav-link">←</a>
+        <a href="#questions" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Questions
+         ================================================================ -->
+    <section class="slide slide--accent" id="questions">
+      <div class="slide-inner">
+        <h2 class="slide-title slide-title--large">Questions?</h2>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#decide" class="nav-link">←</a>
+        <a href="#resources" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Resources
+         ================================================================ -->
+    <section class="slide slide--dark" id="resources">
+      <div class="slide-inner">
+        <h2 class="slide-title">Resources</h2>
+
+        <div class="resources-list">
+          <a href="https://github.com/Teamtailor/teamtailor/pull/46737" class="resource-link" target="_blank">
+            <span class="resource-icon">💬</span>
+            <span class="resource-text">
+              <strong>The PR thread that started this</strong>
+              <span class="resource-url">github.com/Teamtailor/teamtailor/pull/46737</span>
+            </span>
+          </a>
+
+          <a href="https://guides.rubyonrails.org/active_job_basics.html" class="resource-link" target="_blank">
+            <span class="resource-icon">📕</span>
+            <span class="resource-text">
+              <strong>Active Job Basics — retry_on / discard_on</strong>
+              <span class="resource-url">guides.rubyonrails.org/active_job_basics.html</span>
+            </span>
+          </a>
+
+          <a href="https://github.com/sidekiq/sidekiq/wiki/Active-Job" class="resource-link" target="_blank">
+            <span class="resource-icon">⚙️</span>
+            <span class="resource-text">
+              <strong>Sidekiq Wiki — Active Job adapter</strong>
+              <span class="resource-url">github.com/sidekiq/sidekiq/wiki/Active-Job</span>
+            </span>
+          </a>
+
+          <a href="https://github.com/rails/globalid" class="resource-link" target="_blank">
+            <span class="resource-icon">🔗</span>
+            <span class="resource-text">
+              <strong>GlobalID — record serialization</strong>
+              <span class="resource-url">github.com/rails/globalid</span>
+            </span>
+          </a>
+        </div>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#questions" class="nav-link">←</a>
+        <span class="nav-disabled">→</span>
+      </nav>
+    </section>
+
+  </div>
+
+  <!-- Notes toggle button (training mode) -->
+  <button class="notes-toggle" id="notes-toggle" title="Toggle notes (N)">notes</button>
+
+  <!-- Fixed UI elements -->
+  <div class="slide-counter" id="slide-counter"></div>
+  <nav class="slide-nav" id="slide-nav">
+    <a href="#" class="nav-link" id="nav-prev">←</a>
+    <a href="#" class="nav-link" id="nav-next">→</a>
+  </nav>
+
+  <!-- Prism.js for syntax highlighting with autoloader -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+  <script>
+    Prism.plugins.autoloader.languages_path = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/';
+  </script>
+
+  <!-- Keyboard navigation -->
+  <script src="keyboard.js"></script>
+</body>
+</html>

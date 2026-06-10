@@ -23,9 +23,10 @@
          ================================================================ -->
     <section class="slide slide--gradient" id="title">
       <div class="slide-inner">
-        <h1 class="slide-title slide-title--large">Merge Skills and Traits</h1>
-        <img class="demo-frame__shot" src="frames/merge-intro.png"
-               alt="Skills and traits library showing four overlapping Leadership entries with separate usage counts">
+        <h1 class="slide-title slide-title--large">Merge &amp; Archive Skills and Traits</h1>
+        <p class="slide-subtitle">
+          Two ways to clean up a messy skills &amp; traits library — without losing a single evaluation.
+        </p>
       </div>
 
       <nav class="slide-nav">
@@ -35,15 +36,18 @@
     </section>
 
     <!-- ================================================================
-         The problem
+         The problem (joint statement)
          ================================================================ -->
     <section class="slide slide--dark" id="problem">
       <div class="slide-inner">
-        <h2 class="slide-title">The problem</h2>
+        <p class="chapter-label">The problem</p>
+        <h2 class="slide-title">Libraries get messy — and there was no safe way to clean them</h2>
         <p class="slide-text">
-          Keeping a tidy company skills and traits taxonomy is hard. It's natural for it to drift and accumulate duplicates over time.
-
-          <code>Leadership</code>, <code>Leadership skills</code>, <code>Team leadership</code>, <code>People leadership</code>. Four names, one idea.
+          Every company builds a list of skills and traits to score candidates against, and over time it drifts:
+          near-duplicates pile up — <code>Leadership</code>, <code>Leadership skills</code>,
+          <code>Team leadership</code>, <code>People leadership</code> — and entries nobody scores against any more
+          linger in every picker. The catch: there was no way to tidy it up
+          <strong>without destroying historical evaluation data</strong>.
         </p>
 
         <figure class="demo-frame">
@@ -58,6 +62,9 @@
         </figure>
 
         <p class="speaker-notes">
+          This is the whole pitch in one screenshot. Four Leadership variants, each with its own "times used" — 6, 3, 2,
+          1. That's one competency scored four ways, and no report can tell they're the same thing. The pain isn't
+          cosmetic: fragmented counts make the picker untrustworthy and quietly skew every competency-level insight.
         </p>
       </div>
 
@@ -68,70 +75,168 @@
     </section>
 
     <!-- ================================================================
-         What we had
+         The old way — delete
          ================================================================ -->
-         <section class="slide slide--dark" id="old-way">
-          <div class="slide-inner">
-            <h2 class="slide-title">The old way</h2>
-            <p class="slide-text">
-              Cleaning up a messy skills and traits library used to mean choosing between living with duplicates or deleting them and losing your scoring history.
-            </p>
-
-            <figure class="demo-frame">
-              <div class="demo-frame__chrome">
-                <span class="demo-frame__dot"></span>
-                <span class="demo-frame__dot"></span>
-                <span class="demo-frame__dot"></span>
-                <span class="demo-frame__url">app.teamtailor.com/settings/skills-traits</span>
-              </div>
-              <img class="demo-frame__shot" src="frames/delete.png" alt="Delete confirmation dialog">
-            </figure>
-
-            <p class="speaker-notes">
-            </p>
-          </div>
-
-          <nav class="slide-nav">
-            <a href="#title" class="nav-link">←</a>
-            <a href="#solution" class="nav-link">→</a>
-          </nav>
-        </section>
-
-    <!-- ================================================================
-         What we shipped
-         ================================================================ -->
-    <section class="slide slide--accent" id="solution">
+    <section class="slide slide--dark" id="old-way">
       <div class="slide-inner">
-        <p class="chapter-label">What shipped</p>
-        <h2 class="slide-title slide-title--large">Consolidate, don't just hide</h2>
-        <p class="slide-subtitle">
-          Select the duplicates, choose the one to keep, confirm. Everything the sources touched — picks, scores,
-          questions, candidate competencies, interview-kit ordering — re-points to the survivor. The sources are
-          removed and the merge is written to the audit trail.
+        <p class="chapter-label">Before</p>
+        <h2 class="slide-title">The only cleanup tool was delete</h2>
+        <p class="slide-text">
+          Cleaning up used to mean a hard choice: live with the duplicates, or delete them and lose the scoring history
+          attached to each. Delete is permanent — every score, every "times used" tally, gone for good. So most
+          libraries just kept growing.
         </p>
-        <p class="slide-text" style="margin-top: 2rem;">
-          One competency, one count, one clean entry in the picker. The rest of this is the happy path, frame by frame —
-          then the engineering decisions that make it safe to press that button.
-        </p>
+
+        <figure class="demo-frame">
+          <div class="demo-frame__chrome">
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__url">app.teamtailor.com/settings/skills-traits</span>
+          </div>
+          <img class="demo-frame__shot" src="frames/delete.png"
+               alt="Delete confirmation dialog warning that the skill and its scoring history will be permanently removed">
+        </figure>
 
         <p class="speaker-notes">
-          Keep this slide short — it's the thesis. The product promise is "consolidate, don't hide," and the engineering
-          promise is "without losing a single attached record." Both halves matter; the next two acts cover each.
+          Frame this as the trap, not a feature. Delete forced a lose-lose: keep the mess, or destroy data to clean it.
+          Because nobody wants to throw away evaluation history, the rational choice was to do nothing — which is exactly
+          why these libraries rot.
         </p>
       </div>
 
       <nav class="slide-nav">
         <a href="#problem" class="nav-link">←</a>
-        <a href="#demo-select" class="nav-link">→</a>
+        <a href="#toolbox" class="nav-link">→</a>
       </nav>
     </section>
 
     <!-- ================================================================
-         Demo 1 — select the duplicates
+         The fix — two tools
          ================================================================ -->
-    <section class="slide slide--dark" id="demo-select">
+    <section class="slide slide--accent" id="toolbox">
       <div class="slide-inner">
-        <p class="chapter-label">Demo · step 1 of 4</p>
+        <p class="chapter-label">The fix</p>
+        <h2 class="slide-title slide-title--large">Two tools. Zero data loss.</h2>
+        <p class="slide-subtitle">
+          Instead of one destructive option, there are now two safe ones. Reach for whichever fits the mess.
+        </p>
+
+        <div class="ddd-principles" style="margin-top: 2rem;">
+          <div class="ddd-principle">
+            <span class="ddd-principle-icon">🗄️</span>
+            <h3>Archive</h3>
+            <p>Retire an entry you no longer score against. It leaves every picker but keeps all its history — and you
+              can bring it back any time. <strong>Best for:</strong> skills you've simply stopped using.</p>
+          </div>
+
+          <div class="ddd-principle">
+            <span class="ddd-principle-icon">🔀</span>
+            <h3>Merge</h3>
+            <p>Fold duplicates into the one you want to keep. Everything attached to them moves across, and the counts
+              add up. <strong>Best for:</strong> several names for one idea.</p>
+          </div>
+        </div>
+
+        <p class="speaker-notes">
+          The thesis slide: the old answer was "delete and lose data." The new answer is two non-destructive tools. The
+          rest of the deck walks each one through the UI, then shows why each beats deleting or ignoring, and finally the
+          data-integrity work that makes both safe to hand to every customer.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#old-way" class="nav-link">←</a>
+        <a href="#archive-select" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Archive demo 1 — archive the unwanted entries
+         ================================================================ -->
+    <section class="slide slide--dark" id="archive-select">
+      <div class="slide-inner">
+        <p class="chapter-label">Archive · step 1 of 2</p>
+        <h2 class="slide-title">Archive what you've stopped using</h2>
+
+        <figure class="demo-frame demo-frame--pending">
+          <div class="demo-frame__chrome">
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__url">app.teamtailor.com/settings/skills-traits</span>
+          </div>
+          <div class="demo-frame__shot">
+            <span>Screenshot needed — the Skills and traits list with bulk-select enabled and two or three unused
+            entries checked. The bulk action bar shows <strong>Archive</strong> as the available action. (Delete is not
+            offered here — an item must be archived before it can be deleted.) Single-row alternative: a row's “⋯” menu
+            open, showing the <strong>Archive</strong> option.</span>
+          </div>
+        </figure>
+
+        <p class="demo-caption">
+          Select the entries you no longer score against and archive them — one at a time, or in bulk.
+        </p>
+
+        <p class="speaker-notes">
+          Lead with the everyday case: a skill the company stopped using. Archiving is the low-stakes tool — it hides
+          the entry everywhere it can be picked, but changes nothing about the data behind it.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#toolbox" class="nav-link">←</a>
+        <a href="#archive-result" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Archive demo 2 — the archived view
+         ================================================================ -->
+    <section class="slide slide--dark" id="archive-result">
+      <div class="slide-inner">
+        <p class="chapter-label">Archive · step 2 of 2</p>
+        <h2 class="slide-title">Out of the way, never gone</h2>
+
+        <figure class="demo-frame demo-frame--pending">
+          <div class="demo-frame__chrome">
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__url">app.teamtailor.com/settings/skills-traits</span>
+          </div>
+          <div class="demo-frame__shot">
+            <span>Screenshot needed — the <strong>Archived skills and traits</strong> filter active, listing the items
+            just archived. Each row offers <strong>Unarchive</strong> to restore it, and <strong>Delete</strong> is now
+            available from this archived view. Ideally the main (active) list visible behind/before shows those entries
+            are gone from it.</span>
+          </div>
+        </figure>
+
+        <p class="demo-caption">
+          Archived entries drop out of every picker but live on under the Archived filter — <strong>unarchive</strong>
+          any time to bring one back exactly as it was.
+        </p>
+
+        <p class="speaker-notes">
+          Two things to land: archived items disappear from pickers (so "a skill went missing" is almost always "it was
+          archived"), and the action is fully reversible. Delete only becomes reachable from here — archiving is the
+          deliberate speed bump before anything is destroyed.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#archive-select" class="nav-link">←</a>
+        <a href="#merge-select" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Merge demo 1 — select the duplicates
+         ================================================================ -->
+    <section class="slide slide--dark" id="merge-select">
+      <div class="slide-inner">
+        <p class="chapter-label">Merge · step 1 of 3</p>
         <h2 class="slide-title">Pick the duplicates to fold in</h2>
 
         <figure class="demo-frame">
@@ -156,17 +261,17 @@
       </div>
 
       <nav class="slide-nav">
-        <a href="#solution" class="nav-link">←</a>
-        <a href="#demo-confirm" class="nav-link">→</a>
+        <a href="#archive-result" class="nav-link">←</a>
+        <a href="#merge-confirm" class="nav-link">→</a>
       </nav>
     </section>
 
     <!-- ================================================================
-         Demo 2 — the confirm modal
+         Merge demo 2 — the confirm modal
          ================================================================ -->
-    <section class="slide slide--dark" id="demo-confirm">
+    <section class="slide slide--dark" id="merge-confirm">
       <div class="slide-inner">
-        <p class="chapter-label">Demo · step 2 of 4</p>
+        <p class="chapter-label">Merge · step 2 of 3</p>
         <h2 class="slide-title">Confirm — and choose what to keep</h2>
 
         <figure class="demo-frame">
@@ -182,65 +287,29 @@
 
         <p class="demo-caption">
           The modal lists the sources as tags and asks one thing: <strong>which entry survives?</strong> Keep
-          <strong>Leadership</strong>.
+          <strong>Leadership</strong>. Confirming hands the work to a background job.
         </p>
 
         <p class="speaker-notes">
-          The source tags are the deliberate signal here — the team chose them over an affected-counts preview from the
-          original mockup, because the tags answer the question that actually prevents mistakes: "am I merging the right
-          things into the right target?" Naming the survivor is the only decision the recruiter has to make.
+          The source tags are the deliberate signal — chosen over an affected-counts preview, because they answer the
+          question that actually prevents mistakes: "am I merging the right things into the right target?" Naming the
+          survivor is the only decision the recruiter has to make. Confirming runs the merge in the background; for a
+          real-world library it's near-instant.
         </p>
       </div>
 
       <nav class="slide-nav">
-        <a href="#demo-select" class="nav-link">←</a>
-        <a href="#demo-merging" class="nav-link">→</a>
+        <a href="#merge-select" class="nav-link">←</a>
+        <a href="#merge-after" class="nav-link">→</a>
       </nav>
     </section>
 
     <!-- ================================================================
-         Demo 3 — merge runs
+         Merge demo 3 — the payoff
          ================================================================ -->
-    <section class="slide slide--dark" id="demo-merging">
+    <section class="slide slide--accent" id="merge-after">
       <div class="slide-inner">
-        <p class="chapter-label">Demo · step 3 of 4</p>
-        <h2 class="slide-title">Merge runs in the background</h2>
-
-        <figure class="demo-frame">
-          <div class="demo-frame__chrome">
-            <span class="demo-frame__dot"></span>
-            <span class="demo-frame__dot"></span>
-            <span class="demo-frame__dot"></span>
-            <span class="demo-frame__url">app.teamtailor.com/settings/skills-traits</span>
-          </div>
-          <img class="demo-frame__shot" src="frames/frame-4-merge-in-progress.png"
-               alt="The library with a green Merge in progress toast: refresh in a moment to see the result">
-        </figure>
-
-        <p class="demo-caption">
-          Confirming hands the work to a single background job. The recruiter gets an immediate acknowledgement and
-          carries on.
-        </p>
-
-        <p class="speaker-notes">
-          Be honest on this slide: there's no live progress bar — that was deferred with product sign-off. For a
-          real-world library the merge is near-instant; the background job exists for correctness and for the rare large
-          merge, not because the UI makes you wait.
-        </p>
-      </div>
-
-      <nav class="slide-nav">
-        <a href="#demo-confirm" class="nav-link">←</a>
-        <a href="#demo-after" class="nav-link">→</a>
-      </nav>
-    </section>
-
-    <!-- ================================================================
-         Demo 4 — the payoff
-         ================================================================ -->
-    <section class="slide slide--accent" id="demo-after">
-      <div class="slide-inner">
-        <p class="chapter-label">Demo · step 4 of 4</p>
+        <p class="chapter-label">Merge · step 3 of 3</p>
         <h2 class="slide-title">One entry. One honest count.</h2>
 
         <figure class="demo-frame">
@@ -260,24 +329,140 @@
         </p>
 
         <p class="speaker-notes">
-          This is the whole pitch in one number. 6 + 3 + 2 + 1 = 12, and nothing was double-counted or dropped — the
-          count is the proof that every attached record followed the merge. The picker is clean, and analytics now see
-          one competency where they used to see four.
+          The whole pitch in one number. 6 + 3 + 2 + 1 = 12, and nothing was double-counted or dropped — the count is
+          the proof that every attached record followed the merge. The picker is clean, and analytics now see one
+          competency where they used to see four.
         </p>
       </div>
 
       <nav class="slide-nav">
-        <a href="#demo-merging" class="nav-link">←</a>
+        <a href="#merge-confirm" class="nav-link">←</a>
+        <a href="#archive-benefits" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Why archive beats delete / ignoring
+         ================================================================ -->
+    <section class="slide slide--dark" id="archive-benefits">
+      <div class="slide-inner">
+        <p class="chapter-label">Why it's better · Archive</p>
+        <h2 class="slide-title">Tidy the list, keep the history</h2>
+        <p class="slide-text">
+          Against the old choice — live with the clutter, or delete and lose data — archiving wins on both counts.
+        </p>
+
+        <ul class="takeaways" style="margin-top: 1.5rem;">
+          <li><strong>Out of every picker.</strong> Archived entries vanish from candidates, roles, jobs, job templates
+            and interview kits, so scoring only ever offers what you actually use.</li>
+          <li><strong>Nothing destroyed.</strong> Every score and the full history stay attached — unlike delete, which
+            wiped them for good.</li>
+          <li><strong>Fully reversible.</strong> Unarchive any time and the entry comes back exactly as it was. There's
+            no equivalent "undo" for a deletion.</li>
+          <li><strong>Delete, gated.</strong> Permanent deletion is only reachable after archiving — a deliberate speed
+            bump that makes accidental data loss far harder.</li>
+        </ul>
+
+        <p class="speaker-notes">
+          The frame is "vs delete, vs ignoring." Ignoring left pickers noisy; deleting destroyed history. Archive is the
+          first option that cleans up with neither downside — and it quietly makes delete safer by putting it behind a
+          step.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#merge-after" class="nav-link">←</a>
+        <a href="#merge-benefits" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Why merge beats delete / ignoring
+         ================================================================ -->
+    <section class="slide slide--dark" id="merge-benefits">
+      <div class="slide-inner">
+        <p class="chapter-label">Why it's better · Merge</p>
+        <h2 class="slide-title">Many duplicates, one trustworthy count</h2>
+        <p class="slide-text">
+          Archiving hides duplicates; merging actually resolves them — consolidating the signal instead of just
+          tucking it out of sight.
+        </p>
+
+        <ul class="takeaways" style="margin-top: 1.5rem;">
+          <li><strong>One clean entry.</strong> Four near-duplicate rows become one in the picker — recruiters stop
+            guessing which "Leadership" to score against.</li>
+          <li><strong>Every record follows.</strong> Scores, picks, questions, candidate competencies and interview-kit
+            order all re-point to the survivor. Deleting the duplicates would have thrown that history away.</li>
+          <li><strong>The count finally adds up.</strong> "Times used" becomes the real combined total, so
+            competency analytics count one thing once instead of fragmenting it across duplicates.</li>
+          <li><strong>Better than leaving it.</strong> Ignoring the mess kept every report skewed; merge is the only
+            tool that makes the numbers honest.</li>
+        </ul>
+
+        <p class="speaker-notes">
+          The distinction worth drawing: archive is for entries you're done with; merge is for entries that are secretly
+          the same thing. Merge is the only option that repairs the data rather than hiding or destroying it.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#archive-benefits" class="nav-link">←</a>
+        <a href="#di-principle" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Data integrity — the shared principle
+         ================================================================ -->
+    <section class="slide slide--accent" id="di-principle">
+      <div class="slide-inner">
+        <p class="chapter-label">The data integrity angle</p>
+        <h2 class="slide-title slide-title--large">Cleanup that never destroys evaluation data</h2>
+        <p class="slide-subtitle">
+          Both tools are built around one promise: you can tidy the library without ever losing a score by accident.
+        </p>
+
+        <div class="ddd-principles" style="margin-top: 2rem;">
+          <div class="ddd-principle">
+            <span class="ddd-principle-icon">🗄️</span>
+            <h3>Archive is a status flip</h3>
+            <p>The entry's scores stay exactly where they are; only its visibility changes. Reversible by design.</p>
+          </div>
+
+          <div class="ddd-principle">
+            <span class="ddd-principle-icon">🔀</span>
+            <h3>Merge is an atomic move</h3>
+            <p>Every attached record re-points to the survivor in one transaction — the duplicates' history lives on in
+              the kept entry.</p>
+          </div>
+
+          <div class="ddd-principle">
+            <span class="ddd-principle-icon">🗑️</span>
+            <h3>Delete is gated</h3>
+            <p>Permanent deletion is only reachable after archiving, so nothing is destroyed without a deliberate
+              second step.</p>
+          </div>
+        </div>
+
+        <p class="speaker-notes">
+          This is the slide that ties the deck together and sets up the engineering. Archive is the easy half — a
+          reversible status change. Merge is where the real integrity work lives, because "move a skill" is actually
+          "move everything attached to it, all at once, safely." The next four slides are that work.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#merge-benefits" class="nav-link">←</a>
         <a href="#decisions-atomic" class="nav-link">→</a>
       </nav>
     </section>
 
     <!-- ================================================================
-         Decision 1 — atomic job
+         Data integrity 1 — atomic job
          ================================================================ -->
     <section class="slide slide--dark" id="decisions-atomic">
       <div class="slide-inner">
-        <p class="chapter-label">How it's built · 1</p>
+        <p class="chapter-label">Data integrity · 1</p>
         <h2 class="slide-title">All-or-nothing, by construction</h2>
         <p class="slide-text">
           A merge rewrites a lot of rows. If it half-finishes, the library is worse off than before it ran — so the
@@ -298,17 +483,17 @@
       </div>
 
       <nav class="slide-nav">
-        <a href="#demo-after" class="nav-link">←</a>
+        <a href="#di-principle" class="nav-link">←</a>
         <a href="#decisions-cascade" class="nav-link">→</a>
       </nav>
     </section>
 
     <!-- ================================================================
-         Decision 2 — the cascade
+         Data integrity 2 — the cascade
          ================================================================ -->
     <section class="slide slide--dark" id="decisions-cascade">
       <div class="slide-inner">
-        <p class="chapter-label">How it's built · 2</p>
+        <p class="chapter-label">Data integrity · 2</p>
         <h2 class="slide-title">Nothing falls through the cracks</h2>
         <p class="slide-text">
           A skill isn't one row — it's the hub of a small graph. The merge re-points every spoke to the survivor before
@@ -335,11 +520,11 @@
     </section>
 
     <!-- ================================================================
-         Decision 3 — tenant safety + guards
+         Data integrity 3 — tenant safety + guards
          ================================================================ -->
     <section class="slide slide--dark" id="decisions-safety">
       <div class="slide-inner">
-        <p class="chapter-label">How it's built · 3</p>
+        <p class="chapter-label">Data integrity · 3</p>
         <h2 class="slide-title">Safe to expose, hard to misuse</h2>
 
         <div class="ddd-principles">
@@ -377,11 +562,11 @@
     </section>
 
     <!-- ================================================================
-         Decision 4 — recovery + downstream
+         Data integrity 4 — recovery + downstream
          ================================================================ -->
     <section class="slide slide--dark" id="decisions-recovery">
       <div class="slide-inner">
-        <p class="chapter-label">How it's built · 4</p>
+        <p class="chapter-label">Data integrity · 4</p>
         <h2 class="slide-title">Auditable, and consistent downstream</h2>
         <p class="slide-text">
           Merged sources are hard-deleted — but never without a trace, and never leaving stale data behind them.
@@ -403,58 +588,6 @@
 
       <nav class="slide-nav">
         <a href="#decisions-safety" class="nav-link">←</a>
-        <a href="#edges" class="nav-link">→</a>
-      </nav>
-    </section>
-
-    <!-- ================================================================
-         Honest scope notes
-         ================================================================ -->
-    <section class="slide slide--accent" id="edges">
-      <div class="slide-inner">
-        <p class="chapter-label">The honest part</p>
-        <h2 class="slide-title">What we deliberately left out</h2>
-
-        <ul class="takeaways">
-          <li><strong>No live progress indicator.</strong> Deferred with explicit product sign-off — merges are fast in practice, and the background job is there for correctness, not because the UI needs to stall.</li>
-          <li><strong>No affected-counts preview.</strong> The original mockup showed impact counts in the modal; the source tags were accepted as the signal that actually prevents mistakes. Less to build, same safety.</li>
-          <li><strong>Webhooks out of scope.</strong> ScorecardCriterium webhooks weren't part of this; the audit event is the recovery and traceability surface instead.</li>
-          <li><strong>Oversized merges have a runbook</strong> rather than special-case UI — the right place for a once-in-a-while operation.</li>
-        </ul>
-
-        <p class="speaker-notes">
-          Putting the cuts on an accent slide signals they were choices, not gaps. Each one is a place where the team
-          traded a nice-to-have for shipping the core value sooner, and each was agreed with product rather than dropped
-          quietly. That's the part worth being proud of without saying so.
-        </p>
-      </div>
-
-      <nav class="slide-nav">
-        <a href="#decisions-recovery" class="nav-link">←</a>
-        <a href="#close" class="nav-link">→</a>
-      </nav>
-    </section>
-
-    <!-- ================================================================
-         Close
-         ================================================================ -->
-    <section class="slide slide--gradient" id="close">
-      <div class="slide-inner">
-        <h2 class="slide-title slide-title--large">From four rows to one trustworthy count</h2>
-        <p class="slide-subtitle">
-          Recruiters get a library they can trust, the picker gets quieter, and competency analytics finally count one
-          thing once — delivered as an atomic, tenant-safe, auditable operation that's safe to hand to every customer.
-        </p>
-
-        <p class="speaker-notes">
-          Land on the user outcome, not the engineering. The engineering earns the right to make the claim — atomic,
-          tenant-safe, auditable — but the thing the customer feels is "my skills list is finally clean and my numbers
-          are finally right."
-        </p>
-      </div>
-
-      <nav class="slide-nav">
-        <a href="#edges" class="nav-link">←</a>
         <a href="#resources" class="nav-link">→</a>
       </nav>
     </section>
@@ -486,7 +619,7 @@
       </div>
 
       <nav class="slide-nav">
-        <a href="#close" class="nav-link">←</a>
+        <a href="#decisions-recovery" class="nav-link">←</a>
         <span class="nav-disabled">→</span>
       </nav>
     </section>

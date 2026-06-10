@@ -206,7 +206,7 @@
 
         <p class="demo-caption">
           Archived entries live on under the Archived filter. Unarchive any time and they're selectable again —
-          across candidates, roles, jobs, job templates and interview kits — exactly as they were.
+          across candidates, roles, jobs, job templates and interview kits — with their scoring history intact.
         </p>
 
         <p class="speaker-notes">
@@ -397,7 +397,7 @@
     <!-- ================================================================
          Merge demo 3 — the payoff
          ================================================================ -->
-    <section class="slide slide--accent" id="merge-after">
+    <section class="slide slide--dark" id="merge-after">
       <div class="slide-inner">
         <p class="chapter-label">Merge · step 3 of 3</p>
         <h2 class="slide-title">One entry. One honest count.</h2>
@@ -414,8 +414,8 @@
         </figure>
 
         <p class="demo-caption">
-          The three variants are gone. <strong>Leadership</strong> now reads <strong>12</strong> — the exact sum of
-          everything that used to be scattered across four rows.
+          The three variants are gone,
+          everything that used to be scattered across four rows is now whole.
         </p>
 
         <p class="speaker-notes">
@@ -443,14 +443,10 @@
         </p>
 
         <ul class="takeaways" style="margin-top: 1.5rem;">
-          <li><strong>Out of every picker.</strong> Archived entries vanish from candidates, roles, jobs, job templates
-            and interview kits, so scoring only ever offers what you actually use.</li>
-          <li><strong>Nothing destroyed.</strong> Every score and the full history stay attached — unlike delete, which
-            wiped them for good.</li>
-          <li><strong>Fully reversible.</strong> Unarchive any time and the entry comes back exactly as it was. There's
-            no equivalent "undo" for a deletion.</li>
-          <li><strong>Delete, gated.</strong> Permanent deletion is only reachable after archiving — a deliberate speed
-            bump that makes accidental data loss far harder.</li>
+          <li><strong>Out of the way, history intact.</strong> Archived entries leave every picker, but their scores
+            stay attached — unlike delete, which wiped them for good.</li>
+          <li><strong>Reversible, and delete is gated.</strong> Unarchive to bring an entry back, and permanent deletion
+            is now only reachable after archiving — a deliberate speed bump against accidental data loss.</li>
         </ul>
 
         <p class="speaker-notes">
@@ -479,14 +475,11 @@
         </p>
 
         <ul class="takeaways" style="margin-top: 1.5rem;">
-          <li><strong>One clean entry.</strong> Four near-duplicate rows become one in the picker — recruiters stop
-            guessing which "Leadership" to score against.</li>
-          <li><strong>Every record follows.</strong> Scores, picks, questions, candidate competencies and interview-kit
-            order all re-point to the survivor. Deleting the duplicates would have thrown that history away.</li>
-          <li><strong>The count finally adds up.</strong> "Times used" becomes the real combined total, so
-            competency analytics count one thing once instead of fragmenting it across duplicates.</li>
-          <li><strong>Better than leaving it.</strong> Ignoring the mess kept every report skewed; merge is the only
-            tool that makes the numbers honest.</li>
+          <li><strong>One clean entry, every record kept.</strong> Four near-duplicate rows become one, and the scores,
+            picks, questions and candidate competencies all re-point to the survivor — history that deleting would have
+            thrown away.</li>
+          <li><strong>The count finally adds up.</strong> "Times used" becomes the real combined total, so analytics
+            count one competency once instead of fragmenting it across duplicates.</li>
         </ul>
 
         <p class="speaker-notes">
@@ -516,7 +509,8 @@
           <div class="ddd-principle">
             <span class="ddd-principle-icon">🗄️</span>
             <h3>Archive is a status flip</h3>
-            <p>The entry's scores stay exactly where they are; only its visibility changes. Reversible by design.</p>
+            <p>The entry's scoring history stays put — the entry just leaves the pickers, and unarchive brings it
+              back.</p>
           </div>
 
           <div class="ddd-principle">
@@ -543,141 +537,89 @@
 
       <nav class="slide-nav">
         <a href="#merge-benefits" class="nav-link">←</a>
-        <a href="#decisions-atomic" class="nav-link">→</a>
+        <a href="#decisions-integrity" class="nav-link">→</a>
       </nav>
     </section>
 
     <!-- ================================================================
-         Data integrity 1 — atomic job
+         Data integrity 1 — why a merge can't lose data
          ================================================================ -->
-    <section class="slide slide--dark" id="decisions-atomic">
+    <section class="slide slide--dark" id="decisions-integrity">
       <div class="slide-inner">
         <p class="chapter-label">Data integrity · 1</p>
-        <h2 class="slide-title">All-or-nothing, by construction</h2>
+        <h2 class="slide-title">Why a merge can't lose data</h2>
         <p class="slide-text">
-          A merge rewrites a lot of rows. If it half-finishes, the library is worse off than before it ran — so the
-          whole thing is one atomic transaction inside a single background job.
+          "Move a skill" is really "move everything attached to it, all at once." The merge is built so that either all
+          of it lands on the survivor, or nothing changes at all.
         </p>
 
         <ul class="takeaways" style="margin-top: 1.5rem;">
-          <li><strong>One transaction.</strong> Every affected record moves, or none do. There is no partial merge to clean up.</li>
-          <li><strong>Deadlock-safe locking.</strong> Rows are locked in a stable id order before any write, so two concurrent merges can never grab the same rows in opposite order.</li>
-          <li><strong>Bounded work.</strong> Capped at 50 sources and 5,000 affected records per merge — large enough for any real library, small enough to keep a worker comfortable. Anything bigger has a documented runbook.</li>
+          <li><strong>All-or-nothing.</strong> The whole merge runs as one transaction — there's never a half-merged
+            library to clean up afterwards.</li>
+          <li><strong>Everything follows the survivor.</strong> Scores, picks, questions, candidate competencies and
+            interview-kit order all re-point to the kept entry before the duplicates are removed.</li>
+          <li><strong>The count is the receipt.</strong> "Times used 12" only adds up if every record made the move — so
+            the number doubles as its own correctness check.</li>
         </ul>
 
         <p class="speaker-notes">
-          The deadlock-ordering detail is the kind of thing that only shows up under concurrency in production. Locking
-          in sorted id order is a small, deliberate choice that quietly removes a class of bug. The caps were tuned
-          down from an earlier, far higher ceiling once we understood the real worker cost.
+          This was the deepest part of the work. Under the hood it's five relation types reassigned inside a single
+          atomic transaction, with rows locked in a stable id order so two concurrent merges can't deadlock, and a
+          product-agreed rule to union conflicting questions onto the survivor rather than drop any. The caps (50
+          sources, 5,000 records) keep a worker comfortable; anything bigger has a runbook. For the audience, the
+          headline is simpler: it either fully works or doesn't run, and the count proves nothing was lost.
         </p>
       </div>
 
       <nav class="slide-nav">
         <a href="#di-principle" class="nav-link">←</a>
-        <a href="#decisions-cascade" class="nav-link">→</a>
-      </nav>
-    </section>
-
-    <!-- ================================================================
-         Data integrity 2 — the cascade
-         ================================================================ -->
-    <section class="slide slide--dark" id="decisions-cascade">
-      <div class="slide-inner">
-        <p class="chapter-label">Data integrity · 2</p>
-        <h2 class="slide-title">Nothing falls through the cracks</h2>
-        <p class="slide-text">
-          A skill isn't one row — it's the hub of a small graph. The merge re-points every spoke to the survivor before
-          the sources are removed.
-        </p>
-
-        <ul class="takeaways" style="margin-top: 1.5rem;">
-          <li><strong>Five relation types reassigned</strong> — scorecard picks, scores, candidate competencies, interview-kit ordering, and the questions attached to each criterium.</li>
-          <li><strong>Questions union onto the survivor.</strong> When sources carry conflicting questions, the product rule is to keep them all on the winner rather than silently dropping any — a decision settled with product, not invented in code.</li>
-          <li><strong>The count is the receipt.</strong> "Times used 12" is only correct if every spoke followed the merge. The number doubling as a correctness check is why the demo lands.</li>
-        </ul>
-
-        <p class="speaker-notes">
-          This was the deepest part of the work. "Move a skill" sounds like one update; it's five relationships with
-          their own edge cases, plus a product call on conflicting questions. Getting the union rule pinned down with
-          product up front is why there was no guesswork in the implementation.
-        </p>
-      </div>
-
-      <nav class="slide-nav">
-        <a href="#decisions-atomic" class="nav-link">←</a>
         <a href="#decisions-safety" class="nav-link">→</a>
       </nav>
     </section>
 
     <!-- ================================================================
-         Data integrity 3 — tenant safety + guards
+         Data integrity 2 — safe to switch on for everyone
          ================================================================ -->
     <section class="slide slide--dark" id="decisions-safety">
       <div class="slide-inner">
-        <p class="chapter-label">Data integrity · 3</p>
-        <h2 class="slide-title">Safe to expose, hard to misuse</h2>
+        <p class="chapter-label">Data integrity · 2</p>
+        <h2 class="slide-title">Safe to switch on for everyone</h2>
 
         <div class="ddd-principles">
           <div class="ddd-principle">
             <span class="ddd-principle-icon">🏢</span>
-            <h3>Tenant-safe by design</h3>
-            <p>The job re-scopes the source ids to the company at run time, so a crafted id from another tenant simply isn't in scope to delete. Cross-tenant damage is unreachable, not just unlikely.</p>
+            <h3>Stays inside the company</h3>
+            <p>A merge can only ever touch one customer's own data — reaching another tenant's entries isn't possible,
+              not just unlikely.</p>
           </div>
 
           <div class="ddd-principle">
             <span class="ddd-principle-icon">🚫</span>
             <h3>Guard rails</h3>
-            <p>A self-merge guard, and an active-into-active rule — a late product change means you unarchive before you merge, so an archived entry can't be revived as a side effect.</p>
+            <p>You can't merge an entry into itself, and archived entries must be unarchived first — so nothing gets
+              revived or merged by accident.</p>
           </div>
 
           <div class="ddd-principle">
-            <span class="ddd-principle-icon">🔐</span>
-            <h3>Gated rollout</h3>
-            <p>A Flipper flag plus a policy check that reuses the existing destroy permission — no new permission surface to reason about, and a clean on/off switch for release.</p>
+            <span class="ddd-principle-icon">📝</span>
+            <h3>Audited &amp; gated</h3>
+            <p>Every merge is written to the audit trail, and the whole feature sits behind a flag for a controlled,
+              reversible rollout.</p>
           </div>
         </div>
 
         <p class="speaker-notes">
-          The tenant-safety framing is the one to dwell on: it's not "we validate ownership," it's "the dangerous
-          operation can't see another tenant's rows in the first place." Re-scoping at run time turns a potential
-          security review finding into a non-event. Reusing destroy? for the policy means we didn't invent a new
-          permission model for a destructive action.
+          The tenant-safety framing is the one to dwell on: the job re-scopes source ids to the company at run time, so
+          a crafted id from another tenant simply isn't in scope — a potential security finding turned into a non-event.
+          The policy reuses the existing destroy permission, so there's no new permission model. And side effects
+          (insights re-tracking, search reindex, Job Match Score recompute) fire after the transaction commits, so
+          downstream systems never point at a deleted id. The audit record is the recovery surface if a merge ever
+          needs to be traced.
         </p>
       </div>
 
       <nav class="slide-nav">
-        <a href="#decisions-cascade" class="nav-link">←</a>
-        <a href="#decisions-recovery" class="nav-link">→</a>
-      </nav>
-    </section>
-
-    <!-- ================================================================
-         Data integrity 4 — recovery + downstream
-         ================================================================ -->
-    <section class="slide slide--dark" id="decisions-recovery">
-      <div class="slide-inner">
-        <p class="chapter-label">Data integrity · 4</p>
-        <h2 class="slide-title">Auditable, and consistent downstream</h2>
-        <p class="slide-text">
-          Merged sources are hard-deleted — but never without a trace, and never leaving stale data behind them.
-        </p>
-
-        <ul class="takeaways" style="margin-top: 1.5rem;">
-          <li><strong>Audit event per merge.</strong> Every merge writes a <code>merge</code> audit record naming the survivor and the sources — the designated recovery surface if a merge ever needs to be understood after the fact.</li>
-          <li><strong>Insights re-tracked.</strong> Tracking is deferred and de-duplicated, then fired after the transaction commits, so reporting reflects the consolidated competency rather than the deleted ones.</li>
-          <li><strong>Search &amp; match stay current.</strong> Candidate search reindexes and Job Match Scores recompute, so downstream systems never point at an id that no longer exists.</li>
-        </ul>
-
-        <p class="speaker-notes">
-          The pattern worth calling out: side effects fire <em>after</em> the transaction commits, not during it.
-          Re-tracking insights or reindexing search mid-transaction would either run against half-merged data or get
-          rolled back. Deferring them to after-commit is what keeps the atomic guarantee and the downstream systems
-          consistent at the same time.
-        </p>
-      </div>
-
-      <nav class="slide-nav">
-        <a href="#decisions-safety" class="nav-link">←</a>
+        <a href="#decisions-integrity" class="nav-link">←</a>
         <a href="#resources" class="nav-link">→</a>
       </nav>
     </section>
@@ -709,7 +651,7 @@
       </div>
 
       <nav class="slide-nav">
-        <a href="#decisions-recovery" class="nav-link">←</a>
+        <a href="#decisions-safety" class="nav-link">←</a>
         <span class="nav-disabled">→</span>
       </nav>
     </section>

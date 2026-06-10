@@ -31,6 +31,36 @@
 
       <nav class="slide-nav">
         <span class="nav-disabled">←</span>
+        <a href="#team" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         The team
+         ================================================================ -->
+    <section class="slide slide--dark" id="team">
+      <div class="slide-inner">
+        <p class="chapter-label">The team</p>
+
+        <figure class="team-photo">
+          <img src="frames/team.png"
+               alt="The team behind Merge & Archive, left to right: Nicklas, Sebastian and Beatriz">
+        </figure>
+
+        <div class="team-names">
+          <span>Nicklas</span>
+          <span>Sebastian</span>
+          <span>Beatriz</span>
+        </div>
+
+        <p class="speaker-notes">
+          Quick beat — who built this. Three of us: Nicklas, Sebastian and Beatriz. Keep it short and move on to the
+          problem.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#title" class="nav-link">←</a>
         <a href="#problem" class="nav-link">→</a>
       </nav>
     </section>
@@ -68,7 +98,7 @@
       </div>
 
       <nav class="slide-nav">
-        <a href="#title" class="nav-link">←</a>
+        <a href="#team" class="nav-link">←</a>
         <a href="#old-way" class="nav-link">→</a>
       </nav>
     </section>
@@ -303,10 +333,18 @@
       <div class="slide-inner">
         <p class="chapter-label">When to merge</p>
         <h2 class="slide-title slide-title--large">Archive tidies. Merge resolves.</h2>
-        <p class="slide-subtitle">
-          Archive an entry when you're simply done with it. Reach for <strong>merge</strong> when several entries are
-          secretly the same idea — and you want the scores scattered across them to finally add up to one honest count.
-        </p>
+
+        <div class="ddd-principles ddd-principles--two" style="margin-top: 2rem;">
+          <div class="ddd-principle">
+            <span class="ddd-principle-icon">🗄️</span>
+            <p><strong>Archive</strong> — When you're simply done with an entry. It leaves the pickers, history intact.</p>
+          </div>
+
+          <div class="ddd-principle">
+            <span class="ddd-principle-icon">🔀</span>
+            <p><strong>Merge</strong> — When several entries are secretly the same idea. Their scattered scores fold into one honest count.</p>
+          </div>
+        </div>
 
         <p class="speaker-notes">
           The bridge slide. Archiving hides; it doesn't combine. The moment you have duplicates — four names for one
@@ -427,69 +465,6 @@
 
       <nav class="slide-nav">
         <a href="#merge-confirm" class="nav-link">←</a>
-        <a href="#archive-benefits" class="nav-link">→</a>
-      </nav>
-    </section>
-
-    <!-- ================================================================
-         Why archive beats delete / ignoring
-         ================================================================ -->
-    <section class="slide slide--dark" id="archive-benefits">
-      <div class="slide-inner">
-        <p class="chapter-label">Why it's better · Archive</p>
-        <h2 class="slide-title">Tidy the list, keep the history</h2>
-        <p class="slide-text">
-          Against the old choice — live with the clutter, or delete and lose data — archiving wins on both counts.
-        </p>
-
-        <ul class="takeaways" style="margin-top: 1.5rem;">
-          <li><strong>Out of the way, history intact.</strong> Archived entries leave every picker, but their scores
-            stay attached — unlike delete, which wiped them for good.</li>
-          <li><strong>Reversible, and delete is gated.</strong> Unarchive to bring an entry back, and permanent deletion
-            is now only reachable after archiving — a deliberate speed bump against accidental data loss.</li>
-        </ul>
-
-        <p class="speaker-notes">
-          The frame is "vs delete, vs ignoring." Ignoring left pickers noisy; deleting destroyed history. Archive is the
-          first option that cleans up with neither downside — and it quietly makes delete safer by putting it behind a
-          step.
-        </p>
-      </div>
-
-      <nav class="slide-nav">
-        <a href="#merge-after" class="nav-link">←</a>
-        <a href="#merge-benefits" class="nav-link">→</a>
-      </nav>
-    </section>
-
-    <!-- ================================================================
-         Why merge beats delete / ignoring
-         ================================================================ -->
-    <section class="slide slide--dark" id="merge-benefits">
-      <div class="slide-inner">
-        <p class="chapter-label">Why it's better · Merge</p>
-        <h2 class="slide-title">Many duplicates, one trustworthy count</h2>
-        <p class="slide-text">
-          Archiving hides duplicates; merging actually resolves them — consolidating the signal instead of just
-          tucking it out of sight.
-        </p>
-
-        <ul class="takeaways" style="margin-top: 1.5rem;">
-          <li><strong>One clean entry, every record kept.</strong> Four near-duplicate rows become one, and the scores,
-            picks, questions and candidate competencies all re-point to the survivor — history that deleting would have
-            thrown away.</li>
-          <li><strong>The count finally adds up.</strong> "Times used" becomes the real combined total, so analytics
-            count one competency once instead of fragmenting it across duplicates.</li>
-        </ul>
-
-        <p class="speaker-notes">
-          The distinction worth drawing: archive is for entries you're done with; merge is for entries that are secretly
-          the same thing. Merge is the only option that repairs the data rather than hiding or destroying it.
-        </p>
-      </div>
-
-      <nav class="slide-nav">
-        <a href="#archive-benefits" class="nav-link">←</a>
         <a href="#di-principle" class="nav-link">→</a>
       </nav>
     </section>
@@ -500,126 +475,69 @@
     <section class="slide slide--accent" id="di-principle">
       <div class="slide-inner">
         <p class="chapter-label">The data integrity angle</p>
-        <h2 class="slide-title slide-title--large">Cleanup that never destroys evaluation data</h2>
-        <p class="slide-subtitle">
-          Both tools are built around one promise: you can tidy the library without ever losing a score by accident.
-        </p>
-
-        <div class="ddd-principles" style="margin-top: 2rem;">
-          <div class="ddd-principle">
-            <span class="ddd-principle-icon">🗄️</span>
-            <h3>Archive is a status flip</h3>
-            <p>The entry's scoring history stays put — the entry just leaves the pickers, and unarchive brings it
-              back.</p>
-          </div>
-
-          <div class="ddd-principle">
-            <span class="ddd-principle-icon">🔀</span>
-            <h3>Merge is an atomic move</h3>
-            <p>Every attached record re-points to the survivor in one transaction — the duplicates' history lives on in
-              the kept entry.</p>
-          </div>
-
-          <div class="ddd-principle">
-            <span class="ddd-principle-icon">🗑️</span>
-            <h3>Delete is gated</h3>
-            <p>Permanent deletion is only reachable after archiving, so nothing is destroyed without a deliberate
-              second step.</p>
-          </div>
-        </div>
+        <h2 class="slide-title slide-title--large">A cleanup you can trust</h2>
 
         <p class="speaker-notes">
-          This is the slide that ties the deck together and sets up the engineering. Archive is the easy half — a
-          reversible status change. Merge is where the real integrity work lives, because "move a skill" is actually
-          "move everything attached to it, all at once, safely." The next four slides are that work.
+          The pivot slide: from what the tools do to why they're safe to hand every customer. Archive is the easy
+          half — a reversible status change. Merge is where the real integrity work lives, because "move a skill" is
+          actually "move everything attached to it, all at once, safely." That's the next slide.
         </p>
       </div>
 
       <nav class="slide-nav">
-        <a href="#merge-benefits" class="nav-link">←</a>
+        <a href="#merge-after" class="nav-link">←</a>
         <a href="#decisions-integrity" class="nav-link">→</a>
       </nav>
     </section>
 
     <!-- ================================================================
-         Data integrity 1 — why a merge can't lose data
+         Data integrity — the integrity work, as product features
          ================================================================ -->
     <section class="slide slide--dark" id="decisions-integrity">
       <div class="slide-inner">
-        <p class="chapter-label">Data integrity · 1</p>
-        <h2 class="slide-title">Why a merge can't lose data</h2>
-        <p class="slide-text">
-          "Move a skill" is really "move everything attached to it, all at once." The merge is built so that either all
-          of it lands on the survivor, or nothing changes at all.
+        <p class="chapter-label">Data integrity</p>
+        <h2 class="slide-title">The integrity is the feature</h2>
+        <p class="slide-subtitle">
+          "Move a skill" is really "move everything attached to it, all at once" — so cleanup is engineered to never
+          lose data, whichever tool you reach for.
         </p>
 
-        <ul class="takeaways" style="margin-top: 1.5rem;">
-          <li><strong>All-or-nothing.</strong> The whole merge runs as one transaction — there's never a half-merged
-            library to clean up afterwards.</li>
-          <li><strong>Everything follows the survivor.</strong> Scores, picks, questions, candidate competencies and
-            interview-kit order all re-point to the kept entry before the duplicates are removed.</li>
-          <li><strong>The count is the receipt.</strong> "Times used 12" only adds up if every record made the move — so
-            the number doubles as its own correctness check.</li>
-        </ul>
+        <div class="ddd-principles" style="margin-top: 2rem;">
+          <div class="ddd-principle">
+            <span class="ddd-principle-icon">⚛️</span>
+            <h3>All-or-nothing merge</h3>
+            <p>The whole merge runs as one transaction — everything lands on the survivor, or nothing changes. There's
+              never a half-merged library to clean up.</p>
+          </div>
+
+          <div class="ddd-principle">
+            <span class="ddd-principle-icon">📦</span>
+            <h3>Everything comes along</h3>
+            <p>Scores, picks, questions, candidate competencies and interview-kit order all re-point to the kept entry
+              before the duplicates are removed.</p>
+          </div>
+
+          <div class="ddd-principle">
+            <span class="ddd-principle-icon">🛡️</span>
+            <h3>Safe whichever you pick</h3>
+            <p>Archive is reversible; merge is permanent but written to the audit trail — and neither can ever reach
+              beyond one company's own data.</p>
+          </div>
+        </div>
 
         <p class="speaker-notes">
-          This was the deepest part of the work. Under the hood it's five relation types reassigned inside a single
-          atomic transaction, with rows locked in a stable id order so two concurrent merges can't deadlock, and a
-          product-agreed rule to union conflicting questions onto the survivor rather than drop any. The caps (50
-          sources, 5,000 records) keep a worker comfortable; anything bigger has a runbook. For the audience, the
-          headline is simpler: it either fully works or doesn't run, and the count proves nothing was lost.
+          This was the deepest part of the work, framed for the audience as three product guarantees. Under the hood:
+          five relation types reassigned inside a single atomic transaction, rows locked in a stable id order so two
+          concurrent merges can't deadlock, and a product-agreed rule to union conflicting questions onto the survivor.
+          The caps (50 sources, 5,000 records) keep a worker comfortable; anything bigger has a runbook. Tenant safety
+          is the one to dwell on — the job re-scopes source ids to the company at run time, so another tenant's rows
+          simply aren't in scope. Side effects (insights re-tracking, search reindex, Job Match Score recompute) fire
+          after the transaction commits, and the audit record is the recovery surface if a merge ever needs tracing.
         </p>
       </div>
 
       <nav class="slide-nav">
         <a href="#di-principle" class="nav-link">←</a>
-        <a href="#decisions-safety" class="nav-link">→</a>
-      </nav>
-    </section>
-
-    <!-- ================================================================
-         Data integrity 2 — safe to switch on for everyone
-         ================================================================ -->
-    <section class="slide slide--dark" id="decisions-safety">
-      <div class="slide-inner">
-        <p class="chapter-label">Data integrity · 2</p>
-        <h2 class="slide-title">Safe to switch on for everyone</h2>
-
-        <div class="ddd-principles">
-          <div class="ddd-principle">
-            <span class="ddd-principle-icon">🏢</span>
-            <h3>Stays inside the company</h3>
-            <p>A merge can only ever touch one customer's own data — reaching another tenant's entries isn't possible,
-              not just unlikely.</p>
-          </div>
-
-          <div class="ddd-principle">
-            <span class="ddd-principle-icon">🚫</span>
-            <h3>Guard rails</h3>
-            <p>You can't merge an entry into itself, and archived entries must be unarchived first — so nothing gets
-              revived or merged by accident.</p>
-          </div>
-
-          <div class="ddd-principle">
-            <span class="ddd-principle-icon">📝</span>
-            <h3>Audited &amp; gated</h3>
-            <p>Every merge is written to the audit trail, and the whole feature sits behind a flag for a controlled,
-              reversible rollout.</p>
-          </div>
-        </div>
-
-        <p class="speaker-notes">
-          The tenant-safety framing is the one to dwell on: the job re-scopes source ids to the company at run time, so
-          a crafted id from another tenant simply isn't in scope — a potential security finding turned into a non-event.
-          The policy reuses the existing destroy permission, so there's no new permission model. And side effects
-          (insights re-tracking, search reindex, Job Match Score recompute) fire after the transaction commits, so
-          downstream systems never point at a deleted id. The audit record is the recovery surface if a merge ever
-          needs to be traced.
-        </p>
-      </div>
-
-      <nav class="slide-nav">
-        <a href="#decisions-integrity" class="nav-link">←</a>
         <a href="#resources" class="nav-link">→</a>
       </nav>
     </section>
@@ -629,9 +547,14 @@
          ================================================================ -->
     <section class="slide slide--dark" id="resources">
       <div class="slide-inner">
-        <h2 class="slide-title">Resources</h2>
+        <h2 class="slide-title">Skills and Traits Merge &amp; Archive</h2>
 
-        <div class="resources-list">
+        <figure class="outro-art">
+          <img src="frames/merge-outro.png"
+               alt="Skills and traits chips merging into one selected entry, with three takeaways: tidy up a cluttered library in a few clicks, merge duplicates without losing any history, and retire old skills instead of deleting them">
+        </figure>
+
+        <div class="resources-list resources-list--cards">
           <a href="https://github.com/Teamtailor/teamtailor/pull/46737" class="resource-link" target="_blank">
             <span class="resource-icon">🔀</span>
             <span class="resource-text">
@@ -651,7 +574,7 @@
       </div>
 
       <nav class="slide-nav">
-        <a href="#decisions-safety" class="nav-link">←</a>
+        <a href="#decisions-integrity" class="nav-link">←</a>
         <span class="nav-disabled">→</span>
       </nav>
     </section>

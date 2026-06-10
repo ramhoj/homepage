@@ -23,8 +23,9 @@
          ================================================================ -->
     <section class="slide slide--gradient" id="title">
       <div class="slide-inner">
-        <h1 class="slide-title slide-title--large">Merge &amp; Archive Skills and Traits</h1>
-        <p class="slide-subtitle">A recruiter picks the duplicates, picks the one to keep, and presses merge. Everything those duplicates ever touched moves to the survivor — in one atomic, tenant-safe, auditable step.</p>
+        <h1 class="slide-title slide-title--large">Merge Skills and Traits</h1>
+        <img class="demo-frame__shot" src="frames/merge-intro.png"
+               alt="Skills and traits library showing four overlapping Leadership entries with separate usage counts">
       </div>
 
       <nav class="slide-nav">
@@ -38,16 +39,11 @@
          ================================================================ -->
     <section class="slide slide--dark" id="problem">
       <div class="slide-inner">
-        <h2 class="slide-title">Scorecard libraries rot quietly</h2>
+        <h2 class="slide-title">The problem</h2>
         <p class="slide-text">
-          Every company builds a list of skills and traits to score candidates against. Over time it fills with
-          near-duplicates — <code>Leadership</code>, <code>Leadership skills</code>, <code>Team leadership</code>,
-          <code>People leadership</code>. Four names, one idea.
-        </p>
-        <p class="slide-text" style="margin-top: 1.25rem;">
-          Each duplicate splits the signal: the "times used" count fragments, the scoring picker gets noisier, and
-          analytics treat one competency as four. Until now the only tool was <em>archive</em> — you could hide a
-          duplicate, but everything attached to it was stranded.
+          Keeping a tidy company skills and traits taxonomy is hard. It's natural for it to drift and accumulate duplicates over time.
+
+          <code>Leadership</code>, <code>Leadership skills</code>, <code>Team leadership</code>, <code>People leadership</code>. Four names, one idea.
         </p>
 
         <figure class="demo-frame">
@@ -62,19 +58,44 @@
         </figure>
 
         <p class="speaker-notes">
-          Anchor the whole talk on this screenshot. Four Leadership variants, each with its own "times used" — 6, 3, 2, 1.
-          That's the same competency scored four different ways, and no report can tell they're the same thing.
-          <br><br>
-          The pain isn't cosmetic. Fragmented usage counts make the picker untrustworthy and quietly skew every
-          competency-level insight. Archiving never solved it because archiving doesn't move the data anywhere.
         </p>
       </div>
 
       <nav class="slide-nav">
         <a href="#title" class="nav-link">←</a>
-        <a href="#solution" class="nav-link">→</a>
+        <a href="#old-way" class="nav-link">→</a>
       </nav>
     </section>
+
+    <!-- ================================================================
+         What we had
+         ================================================================ -->
+         <section class="slide slide--dark" id="old-way">
+          <div class="slide-inner">
+            <h2 class="slide-title">The old way</h2>
+            <p class="slide-text">
+              Cleaning up a messy skills and traits library used to mean choosing between living with duplicates or deleting them and losing your scoring history.
+            </p>
+
+            <figure class="demo-frame">
+              <div class="demo-frame__chrome">
+                <span class="demo-frame__dot"></span>
+                <span class="demo-frame__dot"></span>
+                <span class="demo-frame__dot"></span>
+                <span class="demo-frame__url">app.teamtailor.com/settings/skills-traits</span>
+              </div>
+              <img class="demo-frame__shot" src="frames/delete.png" alt="Delete confirmation dialog">
+            </figure>
+
+            <p class="speaker-notes">
+            </p>
+          </div>
+
+          <nav class="slide-nav">
+            <a href="#title" class="nav-link">←</a>
+            <a href="#solution" class="nav-link">→</a>
+          </nav>
+        </section>
 
     <!-- ================================================================
          What we shipped

@@ -48,6 +48,22 @@
         </div>
       </section>
 
+      <!--
+        Projects — hidden by default. Reveal from the browser dev console with:
+            localStorage.setItem('showProjects', 'true'); location.reload();
+        Hide again with:
+            localStorage.removeItem('showProjects'); location.reload();
+      -->
+      <section class="content-section" id="projects" hidden>
+        <h2 class="content-section__title">Projects</h2>
+        <div class="card-list">
+          <a href="presentations/merge-skills-and-traits/index.html" class="card card--draft">
+            <p class="card__title">Merge &amp; Archive Skills and Traits <span class="card__badge">Draft</span></p>
+            <p class="card__desc">Consolidating duplicate scorecard criteria into one trustworthy entry — the problem, a frame-by-frame demo, and the atomic, tenant-safe engineering behind the merge.</p>
+          </a>
+        </div>
+      </section>
+
       <section class="content-section" id="writing">
         <h2 class="content-section__title">Writing</h2>
         <div class="card-list">
@@ -72,5 +88,19 @@
 
     </main>
   </div>
+
+  <script>
+    // Reveal the Projects section only when the flag is set. Set it from the
+    // dev console with: localStorage.setItem('showProjects', 'true')
+    (function () {
+      var enabled =
+        localStorage.getItem("showProjects") === "true" ||
+        document.cookie.indexOf("showProjects=true") !== -1;
+      if (enabled) {
+        var section = document.getElementById("projects");
+        if (section) section.hidden = false;
+      }
+    })();
+  </script>
 </body>
 </html>

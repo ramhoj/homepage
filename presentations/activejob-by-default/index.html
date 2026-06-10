@@ -345,6 +345,7 @@ end</code></pre>
           <li><strong>Sidekiq-only features.</strong> Batches (we use <code>Sidekiq::Batch</code> in the candidate merger), Enterprise unique jobs, <code>sidekiq_retry_in</code>, fine-grained <code>sidekiq_options</code> — not first-class from an ActiveJob class.</li>
           <li><strong>Middleware interaction.</strong> Our server middleware is built around native jobs; ActiveJob wraps them in <code>JobWrapper</code>, which middleware has to special-case (our <code>Current</code>-class middleware already does). Tenant-on-retry through the adapter has bitten us before.</li>
           <li><strong>Retry layering.</strong> <code>retry_on</code> / <code>discard_on</code> sit <em>on top of</em> Sidekiq's own retry. Worth understanding how the two compose rather than assuming one cancels the other.</li>
+          <li><strong>Testing seam.</strong> Flipping <code>queue_adapter = :sidekiq</code> in a test then needs jobs to run inline — but Sidekiq 8's <code>Sidekiq::Testing.inline! do…end</code> sets a <em>thread-local</em> mode that never reaches the Puma server thread (feature / Playwright specs). You have to reach past the public API to the global <code>Sidekiq::Testing.__global_test_mode</code> to make it cross the thread boundary. A native-only test wouldn't juggle two adapters at all.</li>
         </ul>
 
         <p class="speaker-notes">
@@ -353,6 +354,11 @@ end</code></pre>
           The throughput point is the platform team's strongest, and it's correct — Sidekiq is leaner per job. The
           feature-access point is concrete: a job that needs Batches simply can't be an ActiveJob. And I want to credit
           the middleware concern; it's real, even if it didn't apply to the specific job we were arguing about.
+          <br><br>
+          The testing-seam bullet is a fresh one — it bit our first Playwright spec that asserts on a job result. The
+          shared <code>sidekiq: true</code> hook had only ever run in the example thread, so the block form's
+          thread-local mode looked fine until a job ran in the Puma server thread and silently stayed queued. Honest
+          cost of straddling two adapters; a native-only suite never sees it.
         </p>
       </div>
 

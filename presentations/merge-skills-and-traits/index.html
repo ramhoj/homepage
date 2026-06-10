@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Merge &amp; Archive Skills and Traits</title>
+
+  <!-- Teamtailor fonts: Inter -->
+  <link rel="preconnect" href="https://rsms.me/">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+
+  <!-- Prism.js for syntax highlighting -->
+  <link rel="stylesheet" href="prism-theme.css">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a href="../../index.html" class="home-link">← Home</a>
+  <div class="presentation">
+
+    <!-- ================================================================
+         Title
+         ================================================================ -->
+    <section class="slide slide--gradient" id="title">
+      <div class="slide-inner">
+        <h1 class="slide-title slide-title--large">Merge &amp; Archive Skills and Traits</h1>
+        <p class="slide-subtitle">A recruiter picks the duplicates, picks the one to keep, and presses merge. Everything those duplicates ever touched moves to the survivor — in one atomic, tenant-safe, auditable step.</p>
+      </div>
+
+      <nav class="slide-nav">
+        <span class="nav-disabled">←</span>
+        <a href="#problem" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         The problem
+         ================================================================ -->
+    <section class="slide slide--dark" id="problem">
+      <div class="slide-inner">
+        <h2 class="slide-title">Scorecard libraries rot quietly</h2>
+        <p class="slide-text">
+          Every company builds a list of skills and traits to score candidates against. Over time it fills with
+          near-duplicates — <code>Leadership</code>, <code>Leadership skills</code>, <code>Team leadership</code>,
+          <code>People leadership</code>. Four names, one idea.
+        </p>
+        <p class="slide-text" style="margin-top: 1.25rem;">
+          Each duplicate splits the signal: the "times used" count fragments, the scoring picker gets noisier, and
+          analytics treat one competency as four. Until now the only tool was <em>archive</em> — you could hide a
+          duplicate, but everything attached to it was stranded.
+        </p>
+
+        <figure class="demo-frame">
+          <div class="demo-frame__chrome">
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__url">app.teamtailor.com/settings/skills-traits</span>
+          </div>
+          <img class="demo-frame__shot" src="frames/frame-1-messy-library.png"
+               alt="Skills and traits library showing four overlapping Leadership entries with separate usage counts">
+        </figure>
+
+        <p class="speaker-notes">
+          Anchor the whole talk on this screenshot. Four Leadership variants, each with its own "times used" — 6, 3, 2, 1.
+          That's the same competency scored four different ways, and no report can tell they're the same thing.
+          <br><br>
+          The pain isn't cosmetic. Fragmented usage counts make the picker untrustworthy and quietly skew every
+          competency-level insight. Archiving never solved it because archiving doesn't move the data anywhere.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#title" class="nav-link">←</a>
+        <a href="#solution" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         What we shipped
+         ================================================================ -->
+    <section class="slide slide--accent" id="solution">
+      <div class="slide-inner">
+        <p class="chapter-label">What shipped</p>
+        <h2 class="slide-title slide-title--large">Consolidate, don't just hide</h2>
+        <p class="slide-subtitle">
+          Select the duplicates, choose the one to keep, confirm. Everything the sources touched — picks, scores,
+          questions, candidate competencies, interview-kit ordering — re-points to the survivor. The sources are
+          removed and the merge is written to the audit trail.
+        </p>
+        <p class="slide-text" style="margin-top: 2rem;">
+          One competency, one count, one clean entry in the picker. The rest of this is the happy path, frame by frame —
+          then the engineering decisions that make it safe to press that button.
+        </p>
+
+        <p class="speaker-notes">
+          Keep this slide short — it's the thesis. The product promise is "consolidate, don't hide," and the engineering
+          promise is "without losing a single attached record." Both halves matter; the next two acts cover each.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#problem" class="nav-link">←</a>
+        <a href="#demo-select" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Demo 1 — select the duplicates
+         ================================================================ -->
+    <section class="slide slide--dark" id="demo-select">
+      <div class="slide-inner">
+        <p class="chapter-label">Demo · step 1 of 4</p>
+        <h2 class="slide-title">Pick the duplicates to fold in</h2>
+
+        <figure class="demo-frame">
+          <div class="demo-frame__chrome">
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__url">app.teamtailor.com/settings/skills-traits</span>
+          </div>
+          <img class="demo-frame__shot" src="frames/frame-2-sources-selected.png"
+               alt="Bulk-select on; Leadership skills, People leadership and Team leadership checked, with a Merge action bar showing three selected">
+        </figure>
+
+        <p class="demo-caption">
+          Bulk-select the three weaker variants. <strong>Leadership</strong> — the one we keep — stays unchecked.
+        </p>
+
+        <p class="speaker-notes">
+          Walk it slowly: turn on bulk select, tick the three sources. The merge action only appears once two or more
+          rows are selected, which is also the guard against an accidental single-row "merge".
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#solution" class="nav-link">←</a>
+        <a href="#demo-confirm" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Demo 2 — the confirm modal
+         ================================================================ -->
+    <section class="slide slide--dark" id="demo-confirm">
+      <div class="slide-inner">
+        <p class="chapter-label">Demo · step 2 of 4</p>
+        <h2 class="slide-title">Confirm — and choose what to keep</h2>
+
+        <figure class="demo-frame">
+          <div class="demo-frame__chrome">
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__url">app.teamtailor.com/settings/skills-traits</span>
+          </div>
+          <img class="demo-frame__shot" src="frames/frame-3-merge-modal.png"
+               alt="Merge confirmation modal listing the three source tags, Keep as set to Leadership, and a warning that the action cannot be undone">
+        </figure>
+
+        <p class="demo-caption">
+          The modal lists the sources as tags and asks one thing: <strong>which entry survives?</strong> Keep
+          <strong>Leadership</strong>.
+        </p>
+
+        <p class="speaker-notes">
+          The source tags are the deliberate signal here — the team chose them over an affected-counts preview from the
+          original mockup, because the tags answer the question that actually prevents mistakes: "am I merging the right
+          things into the right target?" Naming the survivor is the only decision the recruiter has to make.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#demo-select" class="nav-link">←</a>
+        <a href="#demo-merging" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Demo 3 — merge runs
+         ================================================================ -->
+    <section class="slide slide--dark" id="demo-merging">
+      <div class="slide-inner">
+        <p class="chapter-label">Demo · step 3 of 4</p>
+        <h2 class="slide-title">Merge runs in the background</h2>
+
+        <figure class="demo-frame">
+          <div class="demo-frame__chrome">
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__url">app.teamtailor.com/settings/skills-traits</span>
+          </div>
+          <img class="demo-frame__shot" src="frames/frame-4-merge-in-progress.png"
+               alt="The library with a green Merge in progress toast: refresh in a moment to see the result">
+        </figure>
+
+        <p class="demo-caption">
+          Confirming hands the work to a single background job. The recruiter gets an immediate acknowledgement and
+          carries on.
+        </p>
+
+        <p class="speaker-notes">
+          Be honest on this slide: there's no live progress bar — that was deferred with product sign-off. For a
+          real-world library the merge is near-instant; the background job exists for correctness and for the rare large
+          merge, not because the UI makes you wait.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#demo-confirm" class="nav-link">←</a>
+        <a href="#demo-after" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Demo 4 — the payoff
+         ================================================================ -->
+    <section class="slide slide--accent" id="demo-after">
+      <div class="slide-inner">
+        <p class="chapter-label">Demo · step 4 of 4</p>
+        <h2 class="slide-title">One entry. One honest count.</h2>
+
+        <figure class="demo-frame">
+          <div class="demo-frame__chrome">
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__url">app.teamtailor.com/settings/skills-traits</span>
+          </div>
+          <img class="demo-frame__shot" src="frames/frame-5-consolidated.png"
+               alt="The library after the merge: a single Leadership row showing Times used 12, with the three variant rows gone">
+        </figure>
+
+        <p class="demo-caption">
+          The three variants are gone. <strong>Leadership</strong> now reads <strong>12</strong> — the exact sum of
+          everything that used to be scattered across four rows.
+        </p>
+
+        <p class="speaker-notes">
+          This is the whole pitch in one number. 6 + 3 + 2 + 1 = 12, and nothing was double-counted or dropped — the
+          count is the proof that every attached record followed the merge. The picker is clean, and analytics now see
+          one competency where they used to see four.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#demo-merging" class="nav-link">←</a>
+        <a href="#decisions-atomic" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Decision 1 — atomic job
+         ================================================================ -->
+    <section class="slide slide--dark" id="decisions-atomic">
+      <div class="slide-inner">
+        <p class="chapter-label">How it's built · 1</p>
+        <h2 class="slide-title">All-or-nothing, by construction</h2>
+        <p class="slide-text">
+          A merge rewrites a lot of rows. If it half-finishes, the library is worse off than before it ran — so the
+          whole thing is one atomic transaction inside a single background job.
+        </p>
+
+        <ul class="takeaways" style="margin-top: 1.5rem;">
+          <li><strong>One transaction.</strong> Every affected record moves, or none do. There is no partial merge to clean up.</li>
+          <li><strong>Deadlock-safe locking.</strong> Rows are locked in a stable id order before any write, so two concurrent merges can never grab the same rows in opposite order.</li>
+          <li><strong>Bounded work.</strong> Capped at 50 sources and 5,000 affected records per merge — large enough for any real library, small enough to keep a worker comfortable. Anything bigger has a documented runbook.</li>
+        </ul>
+
+        <p class="speaker-notes">
+          The deadlock-ordering detail is the kind of thing that only shows up under concurrency in production. Locking
+          in sorted id order is a small, deliberate choice that quietly removes a class of bug. The caps were tuned
+          down from an earlier, far higher ceiling once we understood the real worker cost.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#demo-after" class="nav-link">←</a>
+        <a href="#decisions-cascade" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Decision 2 — the cascade
+         ================================================================ -->
+    <section class="slide slide--dark" id="decisions-cascade">
+      <div class="slide-inner">
+        <p class="chapter-label">How it's built · 2</p>
+        <h2 class="slide-title">Nothing falls through the cracks</h2>
+        <p class="slide-text">
+          A skill isn't one row — it's the hub of a small graph. The merge re-points every spoke to the survivor before
+          the sources are removed.
+        </p>
+
+        <ul class="takeaways" style="margin-top: 1.5rem;">
+          <li><strong>Five relation types reassigned</strong> — scorecard picks, scores, candidate competencies, interview-kit ordering, and the questions attached to each criterium.</li>
+          <li><strong>Questions union onto the survivor.</strong> When sources carry conflicting questions, the product rule is to keep them all on the winner rather than silently dropping any — a decision settled with product, not invented in code.</li>
+          <li><strong>The count is the receipt.</strong> "Times used 12" is only correct if every spoke followed the merge. The number doubling as a correctness check is why the demo lands.</li>
+        </ul>
+
+        <p class="speaker-notes">
+          This was the deepest part of the work. "Move a skill" sounds like one update; it's five relationships with
+          their own edge cases, plus a product call on conflicting questions. Getting the union rule pinned down with
+          product up front is why there was no guesswork in the implementation.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#decisions-atomic" class="nav-link">←</a>
+        <a href="#decisions-safety" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Decision 3 — tenant safety + guards
+         ================================================================ -->
+    <section class="slide slide--dark" id="decisions-safety">
+      <div class="slide-inner">
+        <p class="chapter-label">How it's built · 3</p>
+        <h2 class="slide-title">Safe to expose, hard to misuse</h2>
+
+        <div class="ddd-principles">
+          <div class="ddd-principle">
+            <span class="ddd-principle-icon">🏢</span>
+            <h3>Tenant-safe by design</h3>
+            <p>The job re-scopes the source ids to the company at run time, so a crafted id from another tenant simply isn't in scope to delete. Cross-tenant damage is unreachable, not just unlikely.</p>
+          </div>
+
+          <div class="ddd-principle">
+            <span class="ddd-principle-icon">🚫</span>
+            <h3>Guard rails</h3>
+            <p>A self-merge guard, and an active-into-active rule — a late product change means you unarchive before you merge, so an archived entry can't be revived as a side effect.</p>
+          </div>
+
+          <div class="ddd-principle">
+            <span class="ddd-principle-icon">🔐</span>
+            <h3>Gated rollout</h3>
+            <p>A Flipper flag plus a policy check that reuses the existing destroy permission — no new permission surface to reason about, and a clean on/off switch for release.</p>
+          </div>
+        </div>
+
+        <p class="speaker-notes">
+          The tenant-safety framing is the one to dwell on: it's not "we validate ownership," it's "the dangerous
+          operation can't see another tenant's rows in the first place." Re-scoping at run time turns a potential
+          security review finding into a non-event. Reusing destroy? for the policy means we didn't invent a new
+          permission model for a destructive action.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#decisions-cascade" class="nav-link">←</a>
+        <a href="#decisions-recovery" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Decision 4 — recovery + downstream
+         ================================================================ -->
+    <section class="slide slide--dark" id="decisions-recovery">
+      <div class="slide-inner">
+        <p class="chapter-label">How it's built · 4</p>
+        <h2 class="slide-title">Auditable, and consistent downstream</h2>
+        <p class="slide-text">
+          Merged sources are hard-deleted — but never without a trace, and never leaving stale data behind them.
+        </p>
+
+        <ul class="takeaways" style="margin-top: 1.5rem;">
+          <li><strong>Audit event per merge.</strong> Every merge writes a <code>merge</code> audit record naming the survivor and the sources — the designated recovery surface if a merge ever needs to be understood after the fact.</li>
+          <li><strong>Insights re-tracked.</strong> Tracking is deferred and de-duplicated, then fired after the transaction commits, so reporting reflects the consolidated competency rather than the deleted ones.</li>
+          <li><strong>Search &amp; match stay current.</strong> Candidate search reindexes and Job Match Scores recompute, so downstream systems never point at an id that no longer exists.</li>
+        </ul>
+
+        <p class="speaker-notes">
+          The pattern worth calling out: side effects fire <em>after</em> the transaction commits, not during it.
+          Re-tracking insights or reindexing search mid-transaction would either run against half-merged data or get
+          rolled back. Deferring them to after-commit is what keeps the atomic guarantee and the downstream systems
+          consistent at the same time.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#decisions-safety" class="nav-link">←</a>
+        <a href="#edges" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Honest scope notes
+         ================================================================ -->
+    <section class="slide slide--accent" id="edges">
+      <div class="slide-inner">
+        <p class="chapter-label">The honest part</p>
+        <h2 class="slide-title">What we deliberately left out</h2>
+
+        <ul class="takeaways">
+          <li><strong>No live progress indicator.</strong> Deferred with explicit product sign-off — merges are fast in practice, and the background job is there for correctness, not because the UI needs to stall.</li>
+          <li><strong>No affected-counts preview.</strong> The original mockup showed impact counts in the modal; the source tags were accepted as the signal that actually prevents mistakes. Less to build, same safety.</li>
+          <li><strong>Webhooks out of scope.</strong> ScorecardCriterium webhooks weren't part of this; the audit event is the recovery and traceability surface instead.</li>
+          <li><strong>Oversized merges have a runbook</strong> rather than special-case UI — the right place for a once-in-a-while operation.</li>
+        </ul>
+
+        <p class="speaker-notes">
+          Putting the cuts on an accent slide signals they were choices, not gaps. Each one is a place where the team
+          traded a nice-to-have for shipping the core value sooner, and each was agreed with product rather than dropped
+          quietly. That's the part worth being proud of without saying so.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#decisions-recovery" class="nav-link">←</a>
+        <a href="#close" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Close
+         ================================================================ -->
+    <section class="slide slide--gradient" id="close">
+      <div class="slide-inner">
+        <h2 class="slide-title slide-title--large">From four rows to one trustworthy count</h2>
+        <p class="slide-subtitle">
+          Recruiters get a library they can trust, the picker gets quieter, and competency analytics finally count one
+          thing once — delivered as an atomic, tenant-safe, auditable operation that's safe to hand to every customer.
+        </p>
+
+        <p class="speaker-notes">
+          Land on the user outcome, not the engineering. The engineering earns the right to make the claim — atomic,
+          tenant-safe, auditable — but the thing the customer feels is "my skills list is finally clean and my numbers
+          are finally right."
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#edges" class="nav-link">←</a>
+        <a href="#resources" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Resources
+         ================================================================ -->
+    <section class="slide slide--dark" id="resources">
+      <div class="slide-inner">
+        <h2 class="slide-title">Resources</h2>
+
+        <div class="resources-list">
+          <a href="https://github.com/Teamtailor/teamtailor/pull/46737" class="resource-link" target="_blank">
+            <span class="resource-icon">🔀</span>
+            <span class="resource-text">
+              <strong>The pull request</strong>
+              <span class="resource-url">github.com/Teamtailor/teamtailor/pull/46737</span>
+            </span>
+          </a>
+
+          <a href="#" class="resource-link">
+            <span class="resource-icon">📐</span>
+            <span class="resource-text">
+              <strong>Pitch — Merge and archive skills and traits</strong>
+              <span class="resource-url">Notion · product pitch &amp; scopes</span>
+            </span>
+          </a>
+        </div>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#close" class="nav-link">←</a>
+        <span class="nav-disabled">→</span>
+      </nav>
+    </section>
+
+  </div>
+
+  <!-- Notes toggle button (training mode) -->
+  <button class="notes-toggle" id="notes-toggle" title="Toggle notes (N)">notes</button>
+
+  <!-- Fixed UI elements -->
+  <div class="slide-counter" id="slide-counter"></div>
+  <nav class="slide-nav" id="slide-nav">
+    <a href="#" class="nav-link" id="nav-prev">←</a>
+    <a href="#" class="nav-link" id="nav-next">→</a>
+  </nav>
+
+  <!-- Prism.js for syntax highlighting with autoloader -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+  <script>
+    Prism.plugins.autoloader.languages_path = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/';
+  </script>
+
+  <!-- Keyboard navigation -->
+  <script src="keyboard.js"></script>
+</body>
+</html>

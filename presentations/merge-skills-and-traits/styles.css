@@ -598,7 +598,11 @@ body:has(.slide:target) .slide:not(:target) {
 }
 
 .slide--accent .slide-subtitle {
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.slide--accent .chapter-label {
+  color: #fff;
 }
 
 /* =============================================================================
@@ -610,7 +614,13 @@ body:has(.slide:target) .slide:not(:target) {
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-lg);
   max-width: 1000px;
+  margin-inline: auto;
   text-align: left;
+}
+
+.ddd-principles--two {
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 1100px;
 }
 
 .ddd-principle {
@@ -618,6 +628,17 @@ body:has(.slide:target) .slide:not(:target) {
   border-radius: 12px;
   padding: var(--space-lg);
   border: 1px solid var(--tt-grey-64);
+}
+
+/* On the pink accent slides, soften the cards into glassy panels so they
+   sit on the gradient instead of fighting it. */
+.slide--accent .ddd-principle {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.slide--accent .ddd-principle p {
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .ddd-principle-icon {
@@ -982,6 +1003,20 @@ body:has(.slide:target) .slide:not(:target) {
   color: var(--tt-grey-64);
   cursor: not-allowed;
   opacity: 0.2;
+}
+
+.slide-timer {
+  position: fixed;
+  top: var(--space-lg);
+  right: var(--space-lg);
+  font-size: 0.9rem;
+  color: var(--tt-grey-43);
+  font-variant-numeric: tabular-nums;
+  z-index: 50;
+}
+
+.slide-timer.timer-expired {
+  color: var(--tt-primary);
 }
 
 .slide-counter {

@@ -41,13 +41,12 @@
     <section class="slide slide--dark" id="problem">
       <div class="slide-inner">
         <p class="chapter-label">The problem</p>
-        <h2 class="slide-title">Libraries get messy — and there was no safe way to clean them</h2>
+        <h2 class="slide-title">Libraries get messy</h2>
         <p class="slide-text">
           Every company builds a list of skills and traits to score candidates against, and over time it drifts:
           near-duplicates pile up — <code>Leadership</code>, <code>Leadership skills</code>,
           <code>Team leadership</code>, <code>People leadership</code> — and entries nobody scores against any more
-          linger in every picker. The catch: there was no way to tidy it up
-          <strong>without destroying historical evaluation data</strong>.
+          linger in every picker.
         </p>
 
         <figure class="demo-frame">
@@ -122,7 +121,7 @@
           Instead of one destructive option, there are now two safe ones. Reach for whichever fits the mess.
         </p>
 
-        <div class="ddd-principles" style="margin-top: 2rem;">
+        <div class="ddd-principles ddd-principles--two" style="margin-top: 2rem;">
           <div class="ddd-principle">
             <span class="ddd-principle-icon">🗄️</span>
             <h3>Archive</h3>
@@ -159,19 +158,15 @@
         <p class="chapter-label">Archive · step 1 of 2</p>
         <h2 class="slide-title">Archive what you've stopped using</h2>
 
-        <figure class="demo-frame demo-frame--pending">
+        <figure class="demo-frame">
           <div class="demo-frame__chrome">
             <span class="demo-frame__dot"></span>
             <span class="demo-frame__dot"></span>
             <span class="demo-frame__dot"></span>
             <span class="demo-frame__url">app.teamtailor.com/settings/skills-traits</span>
           </div>
-          <div class="demo-frame__shot">
-            <span>Screenshot needed — the Skills and traits list with bulk-select enabled and two or three unused
-            entries checked. The bulk action bar shows <strong>Archive</strong> as the available action. (Delete is not
-            offered here — an item must be archived before it can be deleted.) Single-row alternative: a row's “⋯” menu
-            open, showing the <strong>Archive</strong> option.</span>
-          </div>
+          <img class="demo-frame__shot" src="frames/archive-select.png"
+               alt="Skills and traits list with bulk-select enabled and unused entries checked, the bulk action bar showing the Archive action">
         </figure>
 
         <p class="demo-caption">
@@ -198,19 +193,15 @@
         <p class="chapter-label">Archive · step 2 of 2</p>
         <h2 class="slide-title">Out of the way, never gone</h2>
 
-        <figure class="demo-frame demo-frame--pending">
+        <figure class="demo-frame">
           <div class="demo-frame__chrome">
             <span class="demo-frame__dot"></span>
             <span class="demo-frame__dot"></span>
             <span class="demo-frame__dot"></span>
             <span class="demo-frame__url">app.teamtailor.com/settings/skills-traits</span>
           </div>
-          <div class="demo-frame__shot">
-            <span>Screenshot needed — the <strong>Archived skills and traits</strong> filter active, listing the items
-            just archived. Each row offers <strong>Unarchive</strong> to restore it, and <strong>Delete</strong> is now
-            available from this archived view. Ideally the main (active) list visible behind/before shows those entries
-            are gone from it.</span>
-          </div>
+          <img class="demo-frame__shot" src="frames/archive-result.png"
+               alt="The Archived skills and traits filter active, listing the archived items, each with Unarchive and Delete available">
         </figure>
 
         <p class="demo-caption">
@@ -246,7 +237,7 @@
             <span class="demo-frame__dot"></span>
             <span class="demo-frame__url">app.teamtailor.com/settings/skills-traits</span>
           </div>
-          <img class="demo-frame__shot" src="frames/frame-2-sources-selected.png"
+          <img class="demo-frame__shot" src="frames/merge-select.png"
                alt="Bulk-select on; Leadership skills, People leadership and Team leadership checked, with a Merge action bar showing three selected">
         </figure>
 
@@ -281,7 +272,7 @@
             <span class="demo-frame__dot"></span>
             <span class="demo-frame__url">app.teamtailor.com/settings/skills-traits</span>
           </div>
-          <img class="demo-frame__shot" src="frames/frame-3-merge-modal.png"
+          <img class="demo-frame__shot" src="frames/merge-confirm.png"
                alt="Merge confirmation modal listing the three source tags, Keep as set to Leadership, and a warning that the action cannot be undone">
         </figure>
 
@@ -319,7 +310,7 @@
             <span class="demo-frame__dot"></span>
             <span class="demo-frame__url">app.teamtailor.com/settings/skills-traits</span>
           </div>
-          <img class="demo-frame__shot" src="frames/frame-5-consolidated.png"
+          <img class="demo-frame__shot" src="frames/merge-after.png"
                alt="The library after the merge: a single Leadership row showing Times used 12, with the three variant rows gone">
         </figure>
 
@@ -630,6 +621,7 @@
   <button class="notes-toggle" id="notes-toggle" title="Toggle notes (N)">notes</button>
 
   <!-- Fixed UI elements -->
+  <div class="slide-timer" id="slide-timer">5:00</div>
   <div class="slide-counter" id="slide-counter"></div>
   <nav class="slide-nav" id="slide-nav">
     <a href="#" class="nav-link" id="nav-prev">←</a>

@@ -73,10 +73,9 @@
         <p class="chapter-label">The problem</p>
         <h2 class="slide-title">Libraries get messy</h2>
         <p class="slide-text">
-          Every company builds a list of skills and traits to score candidates against, and over time it drifts:
-          near-duplicates pile up — <code>Leadership</code>, <code>Leadership skills</code>,
-          <code>Team leadership</code>, <code>People leadership</code> — and entries nobody scores against any more
-          linger in every picker.
+          Over time, Skills and Traits libraries drift and
+          duplicates pile up.<br>
+          They create fricton, confusion and skew the data.
         </p>
 
         <figure class="demo-frame">
@@ -111,9 +110,11 @@
         <p class="chapter-label">Before</p>
         <h2 class="slide-title">The only cleanup tool was delete</h2>
         <p class="slide-text">
-          Cleaning up used to mean a hard choice: live with the duplicates, or delete them and lose the scoring history
-          attached to each. Delete is permanent — every score, every "times used" tally, gone for good. So most
-          libraries just kept growing.
+          Cleaning up used to be a difficult choice:
+          live with the <strong>friction</strong> and continued <strong>data-inconsistency risks.</strong>
+          Or <strong>delete</strong> them and <strong>lose the scoring history</strong> attached to each.
+          Delete is permanent, there's no undo.
+          So most libraries just kept growing.
         </p>
 
         <figure class="demo-frame">
@@ -146,9 +147,9 @@
     <section class="slide slide--accent" id="toolbox">
       <div class="slide-inner">
         <p class="chapter-label">The fix</p>
-        <h2 class="slide-title slide-title--large">Two tools. Zero data loss.</h2>
+        <h2 class="slide-title slide-title--large">Two tools. No data loss.</h2>
         <p class="slide-subtitle">
-          Instead of one destructive option, there are now two safe ones. Reach for whichever fits the mess.
+          Instead of one destructive option, there are now two safe ones. Reach for whichever fits your mess.
         </p>
 
         <div class="ddd-principles ddd-principles--two" style="margin-top: 2rem;">
@@ -156,7 +157,7 @@
             <span class="ddd-principle-icon">🗄️</span>
             <h3>Archive</h3>
             <p>Retire an entry you no longer score against. It leaves every picker but keeps all its history — and you
-              can bring it back any time.<br><br> <strong>Best for:</strong> skills you've simply stopped using.</p>
+              can bring it back any time.<br><br> <strong>Best for:</strong> skills and traits you've simply stopped using.</p>
           </div>
 
           <div class="ddd-principle">
@@ -211,16 +212,53 @@
 
       <nav class="slide-nav">
         <a href="#toolbox" class="nav-link">←</a>
+        <a href="#archive-result" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Archive demo 2 — the archived view
+         ================================================================ -->
+    <section class="slide slide--dark" id="archive-result">
+      <div class="slide-inner">
+        <p class="chapter-label">Archive · step 2 of 4</p>
+        <h2 class="slide-title">Out of the way, never gone</h2>
+
+        <figure class="demo-frame">
+          <div class="demo-frame__chrome">
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__dot"></span>
+            <span class="demo-frame__url">app.teamtailor.com/settings/skills-traits</span>
+          </div>
+          <img class="demo-frame__shot" src="frames/archive-result.png"
+                alt="The Archived skills and traits filter active, listing entries each tagged Archived with Times used 0">
+        </figure>
+
+        <p class="demo-caption">
+          Archived entries drop out of every picker but live on under the Archived filter — tagged
+          <strong>Archived</strong>, with their scoring history fully intact.
+        </p>
+
+        <p class="speaker-notes">
+          Land the everyday support point: archived items disappear from pickers, so "a skill went missing" almost
+          always means it was archived. Nothing was destroyed — the entries are right here, one filter away, ready to
+          unarchive.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#unarchive" class="nav-link">←</a>
         <a href="#unarchive" class="nav-link">→</a>
       </nav>
     </section>
 
     <!-- ================================================================
-         Archive demo 2 — unarchive (reversible)
+         Archive demo 3 — unarchive (reversible)
          ================================================================ -->
     <section class="slide slide--dark" id="unarchive">
       <div class="slide-inner">
-        <p class="chapter-label">Archive · step 2 of 4</p>
+        <p class="chapter-label">Archive · step 3 of 4</p>
         <h2 class="slide-title">Changed your mind? Unarchive</h2>
 
         <figure class="demo-frame">
@@ -247,47 +285,11 @@
       </div>
 
       <nav class="slide-nav">
-        <a href="#archive-select" class="nav-link">←</a>
-        <a href="#archive-result" class="nav-link">→</a>
-      </nav>
-    </section>
-
-    <!-- ================================================================
-         Archive demo 3 — the archived view
-         ================================================================ -->
-    <section class="slide slide--dark" id="archive-result">
-      <div class="slide-inner">
-        <p class="chapter-label">Archive · step 3 of 4</p>
-        <h2 class="slide-title">Out of the way, never gone</h2>
-
-        <figure class="demo-frame">
-          <div class="demo-frame__chrome">
-            <span class="demo-frame__dot"></span>
-            <span class="demo-frame__dot"></span>
-            <span class="demo-frame__dot"></span>
-            <span class="demo-frame__url">app.teamtailor.com/settings/skills-traits</span>
-          </div>
-          <img class="demo-frame__shot" src="frames/archive-result.png"
-               alt="The Archived skills and traits filter active, listing entries each tagged Archived with Times used 0">
-        </figure>
-
-        <p class="demo-caption">
-          Archived entries drop out of every picker but live on under the Archived filter — tagged
-          <strong>Archived</strong>, with their scoring history fully intact.
-        </p>
-
-        <p class="speaker-notes">
-          Land the everyday support point: archived items disappear from pickers, so "a skill went missing" almost
-          always means it was archived. Nothing was destroyed — the entries are right here, one filter away, ready to
-          unarchive.
-        </p>
-      </div>
-
-      <nav class="slide-nav">
-        <a href="#unarchive" class="nav-link">←</a>
+        <a href="#archive-result" class="nav-link">←</a>
         <a href="#archive-delete" class="nav-link">→</a>
       </nav>
     </section>
+
 
     <!-- ================================================================
          Archive demo 4 — delete, gated behind archive
@@ -295,7 +297,7 @@
     <section class="slide slide--dark" id="archive-delete">
       <div class="slide-inner">
         <p class="chapter-label">Archive · step 4 of 4</p>
-        <h2 class="slide-title">Delete — now safely gated</h2>
+        <h2 class="slide-title">Delete. Now safely gated.</h2>
 
         <figure class="demo-frame">
           <div class="demo-frame__chrome">
@@ -333,18 +335,6 @@
       <div class="slide-inner">
         <p class="chapter-label">When to merge</p>
         <h2 class="slide-title slide-title--large">Archive tidies. Merge resolves.</h2>
-
-        <div class="ddd-principles ddd-principles--two" style="margin-top: 2rem;">
-          <div class="ddd-principle">
-            <span class="ddd-principle-icon">🗄️</span>
-            <p><strong>Archive</strong> — When you're simply done with an entry. It leaves the pickers, history intact.</p>
-          </div>
-
-          <div class="ddd-principle">
-            <span class="ddd-principle-icon">🔀</span>
-            <p><strong>Merge</strong> — When several entries are secretly the same idea. Their scattered scores fold into one honest count.</p>
-          </div>
-        </div>
 
         <p class="speaker-notes">
           The bridge slide. Archiving hides; it doesn't combine. The moment you have duplicates — four names for one
@@ -400,7 +390,7 @@
     <section class="slide slide--dark" id="merge-confirm">
       <div class="slide-inner">
         <p class="chapter-label">Merge · step 2 of 3</p>
-        <h2 class="slide-title">Confirm — and choose what to keep</h2>
+        <h2 class="slide-title">Confirm and choose what to keep</h2>
 
         <figure class="demo-frame">
           <div class="demo-frame__chrome">
@@ -547,7 +537,7 @@
          ================================================================ -->
     <section class="slide slide--dark" id="resources">
       <div class="slide-inner">
-        <h2 class="slide-title">Skills and Traits Merge &amp; Archive</h2>
+        <h2 class="slide-title">Skills and Traits<br>Merge &amp; Archive</h2>
 
         <figure class="outro-art">
           <img src="frames/merge-outro.png"

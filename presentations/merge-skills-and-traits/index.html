@@ -110,11 +110,8 @@
         <p class="chapter-label">Before</p>
         <h2 class="slide-title">The only cleanup tool was delete</h2>
         <p class="slide-text">
-          Cleaning up used to be a difficult choice:
-          live with the <strong>friction</strong> and continued <strong>data-inconsistency risks.</strong>
-          Or <strong>delete</strong> them and <strong>lose the scoring history</strong> attached to each.
-          Delete is permanent, there's no undo.
-          So most libraries just kept growing.
+          Permanent deletion used to be the only option. It was a very rough tool as there is no undo and
+          every trace of the skill or trait is lost forever. This ment that most libraries just kept growing.
         </p>
 
         <figure class="demo-frame">
@@ -146,10 +143,10 @@
          ================================================================ -->
     <section class="slide slide--accent" id="toolbox">
       <div class="slide-inner">
-        <p class="chapter-label">The fix</p>
-        <h2 class="slide-title slide-title--large">Two tools. No data loss.</h2>
+        <p class="chapter-label">The solution</p>
+        <h2 class="slide-title slide-title--large">Archive and Merge</h2>
         <p class="slide-subtitle">
-          Instead of one destructive option, there are now two safe ones. Reach for whichever fits your mess.
+          Instead of one destructive option, there are now two safe ones. The user reaches for whichever fits their mess.
         </p>
 
         <div class="ddd-principles ddd-principles--two" style="margin-top: 2rem;">
@@ -334,7 +331,7 @@
     <section class="slide slide--accent" id="when-merge">
       <div class="slide-inner">
         <p class="chapter-label">When to merge</p>
-        <h2 class="slide-title slide-title--large">Archive tidies. Merge resolves.</h2>
+        <h2 class="slide-title slide-title--large">Multiple skills and traits refers to the same thing.</h2>
 
         <p class="speaker-notes">
           The bridge slide. Archiving hides; it doesn't combine. The moment you have duplicates — four names for one
@@ -486,32 +483,35 @@
     <section class="slide slide--dark" id="decisions-integrity">
       <div class="slide-inner">
         <p class="chapter-label">Data integrity</p>
-        <h2 class="slide-title">The integrity is the feature</h2>
+        <h2 class="slide-title">Integrity is the feature</h2>
         <p class="slide-subtitle">
-          "Move a skill" is really "move everything attached to it, all at once" — so cleanup is engineered to never
-          lose data, whichever tool you reach for.
+          Both cleanup tools are engineered to
+          safeguard the customer's data at every step.
         </p>
 
-        <div class="ddd-principles" style="margin-top: 2rem;">
+        <div class="ddd-principles ddd-principles--four" style="margin-top: 2rem;">
           <div class="ddd-principle">
             <span class="ddd-principle-icon">⚛️</span>
             <h3>All-or-nothing merge</h3>
-            <p>The whole merge runs as one transaction — everything lands on the survivor, or nothing changes. There's
-              never a half-merged library to clean up.</p>
+            <p>Merges are atomic, There's never a half-merged library to clean up.</p>
           </div>
 
           <div class="ddd-principle">
             <span class="ddd-principle-icon">📦</span>
             <h3>Everything comes along</h3>
-            <p>Scores, picks, questions, candidate competencies and interview-kit order all re-point to the kept entry
-              before the duplicates are removed.</p>
+            <p>Scores, picks, questions, candidate competencies and interview-kit order all re-point to the kept entry.</p>
           </div>
 
           <div class="ddd-principle">
             <span class="ddd-principle-icon">🛡️</span>
             <h3>Safe whichever you pick</h3>
-            <p>Archive is reversible; merge is permanent but written to the audit trail — and neither can ever reach
-              beyond one company's own data.</p>
+            <p>Archive is reversible and Merge migrates every datapoint with no history loss, including analytics.</p>
+          </div>
+
+          <div class="ddd-principle">
+            <span class="ddd-principle-icon">🧾</span>
+            <h3>Audited</h3>
+            <p>Every archive and merge action taken is logged in the audit trail.</p>
           </div>
         </div>
 

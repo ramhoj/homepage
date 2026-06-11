@@ -623,6 +623,18 @@ body:has(.slide:target) .slide:not(:target) {
   max-width: 1100px;
 }
 
+.ddd-principles--four {
+  grid-template-columns: repeat(4, 1fr);
+  max-width: 1100px;
+  gap: var(--space-md);
+}
+
+@media (max-width: 900px) {
+  .ddd-principles--four {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 .ddd-principle {
   background: var(--tt-grey-78);
   border-radius: 12px;

@@ -474,6 +474,195 @@ article.post pre code {
   border-radius: 0;
 }
 
+/* Comparison tables — allowed to break out wider than the 70ch article column */
+article.post .table-scroll {
+  overflow-x: auto;
+  margin: 0 0 var(--space-lg);
+  border: 1px solid var(--tt-grey-78);
+  border-radius: 8px;
+  /* center a wider block on the article's centre line to cut horizontal scroll */
+  width: min(94vw, 1040px);
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
+article.post table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 640px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+article.post thead th {
+  background: var(--tt-grey-84);
+  color: var(--tt-white);
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+}
+
+article.post th,
+article.post td {
+  padding: 0.6rem 0.85rem;
+  border-bottom: 1px solid var(--tt-grey-78);
+  vertical-align: top;
+}
+
+article.post tbody tr:last-child td {
+  border-bottom: none;
+}
+
+article.post tbody th {
+  font-weight: 600;
+  color: var(--tt-white);
+  text-align: left;
+  white-space: nowrap;
+}
+
+article.post td code,
+article.post th code {
+  white-space: nowrap;
+}
+
+article.post .verdict-aj {
+  color: #D30001;
+  font-weight: 600;
+}
+
+article.post .verdict-sk {
+  color: #b1003e;
+  font-weight: 600;
+}
+
+/* Wide sections — Side-by-side and At a glance break out to the same width as
+   code-compare so prose and examples share the same container edges */
+article.post .section-wide {
+  width: min(94vw, 1040px);
+  margin-left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: var(--space-xl);
+}
+
+article.post .section-wide > h2 {
+  margin-top: 0;
+}
+
+/* Inside a wide section, code-compare and table-scroll fill the container */
+article.post .section-wide .code-compare,
+article.post .section-wide .table-scroll {
+  width: 100%;
+  margin-left: 0;
+  transform: none;
+}
+
+/* Side-by-side code comparison — paired Sidekiq / ActiveJob panels */
+article.post .code-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  gap: var(--space-sm) var(--space-md);
+  margin: 0 0 var(--space-lg);
+  /* break out wider than the 70ch column, same as the table */
+  width: min(94vw, 1040px);
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Full-width title row above both panels */
+article.post .cc-title {
+  grid-column: 1 / -1;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--tt-white);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--tt-grey-78);
+}
+
+/* Full-width prose caption below both panels */
+article.post .cc-prose {
+  grid-column: 1 / -1;
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+article.post .cc-prose p {
+  margin: 0 0 0.6em;
+}
+
+article.post .cc-prose p:last-child {
+  margin-bottom: 0;
+}
+
+article.post .cc-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* let the <pre> scroll instead of stretching the grid track */
+}
+
+article.post .cc-head {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.4rem 0.7rem;
+  background: var(--tt-grey-84);
+  color: var(--tt-grey-31);
+  border: 1px solid var(--tt-grey-78);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+}
+
+article.post .cc-head--sk {
+  color: #b1003e;
+}
+
+article.post .cc-head--aj {
+  color: #D30001;
+}
+
+article.post .cc-head code {
+  background: none;
+  padding: 0;
+  font-size: 0.85em;
+}
+
+article.post .cc-panel pre {
+  margin: 0;
+  flex: 1;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+article.post .cc-panel pre code {
+  white-space: pre;
+}
+
+@media (max-width: 720px) {
+  article.post .code-compare {
+    grid-template-columns: 1fr;
+  }
+
+  article.post .section-wide {
+    width: 94vw;
+  }
+}
+
+article.post .cc-feature sup {
+  font-size: 0.7em;
+}
+
+article.post .cc-feature sup a {
+  color: var(--tt-grey-31);
+  text-decoration: none;
+}
+
+article.post p.footnote {
+  font-size: 0.85rem;
+  color: var(--tt-grey-31);
+  border-top: 1px solid var(--tt-grey-78);
+  padding-top: var(--space-sm);
+  margin-top: calc(-1 * var(--space-sm));
+}
+
 /* Canonical CTA */
 .canonical-cta {
   text-align: center;

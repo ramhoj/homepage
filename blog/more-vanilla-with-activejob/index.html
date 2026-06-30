@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>More Vanilla with ActiveJob</title>
+    <meta
+      name="description"
+      content="A case for reaching for ActiveJob first and dropping to a plain Sidekiq::Job only when a job specifically needs it — with the trade-offs laid out both ways."
+    />
+    <meta
+      property="og:description"
+      content="A case for reaching for ActiveJob first and dropping to a plain Sidekiq::Job only when a job specifically needs it — with the trade-offs laid out both ways."
+    />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+    <link rel="stylesheet" href="../../styles.css" />
+    <link rel="stylesheet" href="../../prism-theme.css" />
+    <link rel="stylesheet" href="../../site.css" />
+  </head>
+  <body>
+    <header class="post-header">
+      <a href="../../index.html" class="back-link">← Home</a>
+      <h1>More Vanilla with ActiveJob</h1>
+      <p class="post-meta">Published 2026-06-30</p>
+    </header>
+
+    <article class="post">
+      <p>
+        <code>ActiveJob</code> is the framework's default API for orchestrating async work. It's built into <code>ActionMailer</code> and it's what every Rails application starts
+        out with. <code>ActiveJob</code> comes with a Sidekiq adapter so that teams operating the job infrastructure have flexibility to choose <em>how</em> their jobs run.
+      </p>
+      <p>
+        As with most things Rails, <code>ActiveJob</code> is optimized for readability, and thus productivity. It moves boilerplate to where it belongs — the framework — using the
+        same convention-over-configuration philosophy that Rails was originally sold on. Its declarative async orchestration API allows authors to write jobs with clear intent
+        where business and orchestration logic is clearly separated.
+      </p>
+
+      <h2>Why it matters</h2>
+
+      <ul>
+        <li>Readability: Clearer, more natural wording lets the reader parse the code with less effort. A clean `perform` avoids inviting domain logic inclusions.</li>
+        <li>Intent: Why is this code here, and what is it actually doing? A declarative API lets us tell the two apart.</li>
+        <li>Focus: What is important and what is merely supporting? The load-bearing line should stand out, not drown in boilerplate.</li>
+        <li>Correctness: By delegating boilerplate to the framework, backoff math and retry counters come from battle-tested defaults.</li>
+      </ul>
+
+      <div class="section-wide">
+        <h2>Side-by-side</h2>
+
+        <p>In this section we'll compare common practices and how they're expressed across the two APIs.</p>
+
+        <div class="code-compare">
+          <div class="cc-title">A job with no overrides</div>
+          <div class="cc-panel">
+            <div class="cc-head cc-head--sk"><code>Sidekiq::Job</code></div>
+            <pre><code class="language-ruby">class User::MergeJob
+  include Sidekiq::Job
+
+  def perform(user_id, other_user_id)
+    # ...
+  end
+end</code></pre>
+          </div>
+          <div class="cc-panel">
+            <div class="cc-head cc-head--aj">ActiveJob</div>
+            <pre><code class="language-ruby">class User::MergeJob < ApplicationJob
+  def perform(user, other_user)
+    # ...
+  end
+end</code></pre>
+          </div>
+          <div class="cc-prose">
+            <p>
+              Every Rails application gets generated with an <code>ApplicationJob</code>, a natural place for per-application overrides of framework defaults. Monkey patching
+              <code>Sidekiq::Job</code> would be bad form, so we'd either have to invent a custom module or superclass to share application-wide behaviour.
+            </p>
+          </div>
+        </div>
+
+        <div class="code-compare">
+          <div class="cc-title">A record deleted before perform</div>
+          <div class="cc-panel">
+            <div class="cc-head cc-head--sk"><code>Sidekiq::Job</code></div>
+            <pre><code class="language-ruby">def perform(user_id, other_user_id)
+  user       = User.find_by(id: user_id) or return
+  other_user = User.find_by(id: other_user_id) or return
+
+  user.merge other_user
+end</code></pre>
+          </div>
+          <div class="cc-panel">
+            <div class="cc-head cc-head--aj">ActiveJob</div>
+            <pre><code class="language-ruby">discard_on ActiveJob::DeserializationError
+
+def perform(user, other_user)
+  user.merge other_user
+end</code></pre>
+          </div>
+          <div class="cc-prose">
+            <p>
+              The concept of discarding the job when the records it operates on are gone is expressed declaratively with <code>discard_on</code> compared to two hand-written guard
+              clauses.
+            </p>
+            <p>
+              Ideally jobs should only contain a single call back to the domain model, after all, their job is to orchestrate async workloads, not to know the domain. When the
+              boilerplate is twice as long as the domain call, what's important drowns in boilerplating.
+            </p>
+            <p>
+              By separating the domain call from the async orchestration the two responsibilities of the job are clearly separated and the reader can efficiently read the lines
+              that matter.
+            </p>
+          </div>
+        </div>
+
+        <div class="code-compare">
+          <div class="cc-title">Discard on an exception</div>
+          <div class="cc-panel">
+            <div class="cc-head cc-head--sk"><code>Sidekiq::Job</code></div>
+            <pre><code class="language-ruby">def perform(user_id, other_user_id)
+  user = User.find(user_id)
+  other_user = User.find(other_user_id)
+
+  user.merge other_user
+rescue SelfMergeError
+  # swallowed — a silent discard
+end</code></pre>
+          </div>
+          <div class="cc-panel">
+            <div class="cc-head cc-head--aj">ActiveJob</div>
+            <pre><code class="language-ruby">discard_on SelfMergeError
+
+def perform(user, other_user)
+  user.merge other_user
+end</code></pre>
+          </div>
+          <div class="cc-prose">
+            <p>
+              <code>discard_on</code> also allows us to be declarative about expected exceptions. Same arguments here, what to re-run and what to discard stays declarative rather
+              than mixed with the domain call.
+            </p>
+
+            <p>
+              In addition, <code>discard_on</code> fires a named <code>discard.active_job</code> event you can see in APM or assert in a spec, where a swallowed
+              <code>rescue</code> leaves nothing to tell a deliberate discard from a no-op run.
+            </p>
+          </div>
+        </div>
+
+        <div class="code-compare">
+          <div class="cc-title">Retry budget per error class</div>
+          <div class="cc-panel">
+            <div class="cc-head cc-head--sk"><code>Sidekiq::Job</code></div>
+            <pre><code class="language-ruby">sidekiq_retry_in do |count, exception|
+  if exception.is_a?(ActiveRecord::RecordInvalid) &amp;&amp;
+    count &gt;= MAX_ATTEMPTS - 1
+    :discard
+  end
+end</code></pre>
+          </div>
+          <div class="cc-panel">
+            <div class="cc-head cc-head--aj">ActiveJob</div>
+            <pre><code class="language-ruby">retry_on ActiveRecord::RecordInvalid, attempts: 3</code></pre>
+          </div>
+          <div class="cc-prose">
+            <p>
+              Different retry budgets for different exceptions is a great way to ease up queue load without sacrificing reliability. <code>retry_on</code> makes this easy to reach
+              for while Sidekiq's <code>sidekiq_options retry:</code> makes it something programmers would want to avoid unless absolutely necessary.
+            </p>
+            <p>
+              In practice this leads to less efficient retries and leaves more room for errors when repeated re-run logic has to be copy-pasted between jobs and is easy to misread.
+              Matching the number silently shrinks the budget for <em>transient</em> infrastructure errors — deadlocks, timeouts.
+            </p>
+          </div>
+        </div>
+
+        <div class="code-compare">
+          <div class="cc-title">Retry backoff per error class</div>
+          <div class="cc-panel">
+            <div class="cc-head cc-head--sk"><code>Sidekiq::Job</code></div>
+            <pre><code class="language-ruby">sidekiq_retry_in do |count, exception|
+  case exception
+  when ThrottledError then 15 * (4**count) + rand(0..30)
+  when TransientError then 5 * (count + 1)
+  end
+end</code></pre>
+          </div>
+          <div class="cc-panel">
+            <div class="cc-head cc-head--aj">ActiveJob</div>
+            <pre><code class="language-ruby">retry_on ThrottledError, wait: :polynomially_longer, attempts: 8
+retry_on TransientError, wait: 5.seconds, jitter: 0.3, attempts: 5</code></pre>
+          </div>
+          <div class="cc-prose">
+            <p>
+              <code>retry_on</code> gives per-class attempt budgets, framework backoff (<code>:polynomially_longer</code>, or a <code>wait:</code> proc), and jitter —
+              declaratively. The hand-rolled <code>sidekiq_retry_in</code> makes you own the branching and the backoff math. Reading <code>:polynomially_longer</code> immediately
+              communicates what matters while the custom maths is significantly trickier to extract intent from.
+            </p>
+            <p>
+              The block format has one case where it can do more: when exception classes carry their own retry counts. I've never needed it, but it's the one case where I could see
+              dropping down to <code>Sidekiq::Job</code> being warranted.
+            </p>
+          </div>
+        </div>
+
+        <div class="code-compare">
+          <div class="cc-title">Arguments that survive a deploy</div>
+          <div class="cc-panel">
+            <div class="cc-head cc-head--sk"><code>Sidekiq::Job</code></div>
+            <pre><code class="language-ruby">Job.perform_async(user.id, other_user.id)
+
+def perform(user_id, other_user_id)
+  user = User.find(user_id)
+  other_user = User.find(other_user_id)
+
+  user.merge other_user
+end</code></pre>
+          </div>
+          <div class="cc-panel">
+            <div class="cc-head cc-head--aj">ActiveJob</div>
+            <pre><code class="language-ruby">Job.perform_later(user:, other_user:)
+
+def perform(user:, other_user:)
+  user.merge other_user
+end</code></pre>
+          </div>
+          <div class="cc-prose">
+            <p>
+              <code>GlobalID</code> lets you pass records and keyword arguments directly. Add or reorder an argument and jobs already in the queue don't silently misbind mid-deploy
+              the way positional ids do. Because it allows keyword arguments, there's also far less risk of passing arguments in the wrong order.
+            </p>
+          </div>
+        </div>
+
+        <div class="code-compare">
+          <div class="cc-title">Uniqueness / de-duplication</div>
+          <div class="cc-panel">
+            <div class="cc-head cc-head--sk"><code>Sidekiq::Job</code></div>
+            <pre><code class="language-ruby">sidekiq_options unique_for: 24.hours
+
+def perform(user_id, other_user_id)
+  user = User.find(user_id)
+  other_user = User.find(other_user_id)
+
+  user.merge other_user
+rescue ActiveRecord::RecordNotUnique
+  # unique_for isn't guaranteed, race still has to be handled with index.
+end</code></pre>
+          </div>
+          <div class="cc-panel">
+            <div class="cc-head cc-head--aj">ActiveJob</div>
+            <pre><code class="language-ruby">discard_on ActiveRecord::RecordNotUnique
+
+def perform(user, other_user)
+  user.merge other_user
+end</code></pre>
+          </div>
+          <div class="cc-prose">
+            <p>
+              Sidekiq Enterprise's <code>unique_for</code> drops a duplicate enqueue with a best-effort Redis lock keyed on a digest of the job's class, queue, and arguments. It's
+              handy for pruning redundant work, but Sidekiq's own docs say not to rely on it for correctness. When uniqueness is a real invariant, the database — a unique index —
+              is the exact, adapter-independent guarantee.
+            </p>
+          </div>
+        </div>
+
+        <div class="code-compare">
+          <div class="cc-title">One test seam, not two</div>
+          <div class="cc-panel">
+            <div class="cc-head cc-head--sk"><code>Sidekiq::Job</code></div>
+            <pre><code class="language-ruby"># inline! is thread-local, so jobs on the Puma
+# thread (Playwright) miss it — reach for the global
+config.around(:each, sidekiq: true) do |ex|
+  prev = Sidekiq::Testing.__global_test_mode
+  Sidekiq::Testing.inline!
+  ex.run
+ensure
+  Sidekiq::Testing.__global_test_mode = prev
+end
+
+perform_enqueued_jobs do
+  button("Merge").click
+end</code></pre>
+          </div>
+          <div class="cc-panel">
+            <div class="cc-head cc-head--aj">ActiveJob</div>
+            <pre><code class="language-ruby"># crosses the thread boundary out of the box
+include ActiveJob::TestHelper
+
+perform_enqueued_jobs do
+  button("Merge").click
+end</code></pre>
+          </div>
+          <div class="cc-prose">
+            <p>
+              ActiveJob's test helpers run enqueued work inline no matter which thread executes it. Sidekiq's own inline mode is thread-local, so a job triggered through the Puma
+              server thread in a feature or Playwright spec never sees it — the suite has to reach past the public API to
+              <code>Sidekiq::Testing.__global_test_mode</code> to cross the boundary. A job written against <code>perform_enqueued_jobs</code> never needs that.
+            </p>
+          </div>
+        </div>
+
+        <div class="code-compare">
+          <div class="cc-title">The same API as your mailers</div>
+          <div class="cc-panel">
+            <div class="cc-head cc-head--sk"><code>Sidekiq::Job</code></div>
+            <pre><code class="language-ruby"># mailers enqueue through ActiveJob
+UserMailer.welcome(user).deliver_later
+
+# jobs use a different API
+User::MergeJob.perform_async(user.id, other_user.id)</code></pre>
+          </div>
+          <div class="cc-panel">
+            <div class="cc-head cc-head--aj">ActiveJob</div>
+            <pre><code class="language-ruby"># mailers enqueue through ActiveJob
+UserMailer.welcome(user).deliver_later
+
+# jobs use the same API
+User::MergeJob.perform_later(user, other_user)</code></pre>
+          </div>
+          <div class="cc-prose">
+            <p>
+              <code>deliver_later</code> <em>is</em> ActiveJob: every mail we send is already an <code>ActionMailer::MailDeliveryJob</code> on the Sidekiq adapter. So the question
+              was never whether to run ActiveJob — it's whether the rest of our jobs share its API or speak a second one right beside it. An ActiveJob enqueues with
+              <code>perform_later</code> and takes records, reading like the mailer on the line above; a <code>Sidekiq::Job</code> enqueues with <code>perform_async</code> and
+              takes ids — a parallel-but-different surface to keep in your head.
+            </p>
+            <p>
+              And it isn't a small footprint: <strong>every mailer we have — dozens of <code>deliver_later</code> call sites</strong>, every one an implicit ActiveJob running in
+              production today — instrumented, retried and queued exactly like the app jobs this proposes.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <h2>When to drop down to Sidekiq</h2>
+
+      <p>A few things <code>ActiveJob</code> can't express, and they're reason enough to write those particular jobs as a plain <code>Sidekiq::Job</code> — no apology needed:</p>
+
+      <ul>
+        <li>
+          <strong>Batch completion callbacks.</strong> <code>Sidekiq::Batch</code> runs something once a whole fan-out finishes, with success/failure counts.
+          <code>ActiveJob</code> has no equivalent.
+        </li>
+        <li>
+          <strong>Enqueue-level de-duplication.</strong> <code>unique_for</code> drops a redundant enqueue before it runs (best-effort — keep any real invariant in the database
+          regardless). This can matter when thousands of jobs are expected to clash.
+        </li>
+        <li>
+          <strong>Retry routing.</strong> <code>retry_queue:</code> sends retries to a different queue than the first attempt — the one <code>sidekiq_options</code> setting in real
+          use here with no ActiveJob equivalent.
+        </li>
+        <li>
+          <strong>Raw throughput.</strong> A trivial job body at very high volume or fan-out, where the adapter's per-job (de)serialization is a meaningful fraction of the work.
+          Sidekiq <a href="https://github.com/sidekiq/sidekiq#performance">claims a ~60-100% margin</a> to ActiveJob when draining 500k no-op jobs.
+        </li>
+      </ul>
+
+      <h2>What I'm not claiming / suggesting</h2>
+
+      <ul>
+        <li><strong>Not</strong> "drop Sidekiq." It stays the engine.</li>
+        <li><strong>Not</strong> "ActiveJob is faster." It isn't, and sometimes it can matter.</li>
+        <li><strong>Not</strong> "re-write". Existing jobs stay; this is about the default for new ones.</li>
+      </ul>
+
+      <h2>Considered arguments for Sidekiq</h2>
+
+      <p>The case against defaulting to <code>ActiveJob</code> is worth stating plainly. The strongest objections, and where we land on each:</p>
+
+      <ul>
+        <li>
+          <strong>"It's another layer to debug."</strong> It isn't a new one. <code>config.active_job.queue_adapter = :sidekiq</code> is already set application-wide, so every
+          mailer and every existing <code>ApplicationJob</code> runs through the adapter in production today. Defaulting new jobs to it widens a path we already operate and
+          instrument — it doesn't introduce one. If we're having real issues here, we should solve them with focused tooling that doesn't degrade application-level readability in
+          every job.
+        </li>
+        <li>
+          <strong>Middleware compatibility.</strong>
+          We tested it. Tenant context is carried by <code>Sidekiq::CurrentAttributes</code>, which sits beneath the adapter and travels in the job payload, not on the wrapper. A
+          spec that enqueues under one tenant, makes a <em>different</em> tenant current, and then runs the job through our real server middleware confirms the original tenant is
+          the one restored — on the first attempt and again on a <code>retry_on</code> retry, never the ambient one. The concern is legitimate in principle; in practice the context
+          rides below the layer that caused the scares, and the test is there to keep it that way.
+        </li>
+        <li>
+          <strong>Retry semantics don't line up one-to-one.</strong> ActiveJob counts attempts its own way — an <code>executions</code> counter rather than the
+          <code>retry_count</code> our middleware injects, and a per-class <code>attempts:</code> budget rather than one global <code>retry:</code>. The names and numbers differ,
+          but nothing is lost: a job that needs the attempt count reads <code>executions</code>, and <code>retry_on</code> / <code>discard_on</code> say declaratively what the
+          hand-rolled branching used to. It's a different vocabulary for the same thing, learned once.
+        </li>
+        <li>
+          <strong>GlobalID adds a lookup per argument.</strong> Deserializing a record runs a query before <code>perform</code> begins — usually the same query the body would have
+          run anyway. For a trivial body at high volume it's overhead, which is precisely the raw-throughput case we already keep on <code>Sidekiq::Job</code>. And when you need to
+          control loading or handle a half-missing set of records, pass ids: ActiveJob takes them too — GlobalID is opt-in by passing the record.
+        </li>
+        <li>
+          <strong>Two idioms in one codebase.</strong> We already run both — dozens of ActiveJob jobs and every mailer beside hundreds of plain Sidekiq jobs. A stated default plus
+          the table below lowers the per-job decision cost rather than adding to it, and nothing forces a rewrite of what already works. Dropping down to
+          <code>Sidekiq::Job</code> will read as an explicit optimization decision.
+        </li>
+      </ul>
+
+      <h2>Our compatibility</h2>
+
+      <p>Taking stock of every job we run today:</p>
+
+      <ul>
+        <li>About an eighth are already ActiveJob — the ApplicationJob jobs plus every mailer.</li>
+        <li>More than half of the remaining Sidekiq jobs convert with no change at all.</li>
+        <li>A further chunk converts once a handful of low-volume unique_for jobs move to discard_on plus a DB index.</li>
+        <li>Rolled up: roughly three-quarters are ActiveJob today or could be; the remaining quarter genuinely stay on Sidekiq.</li>
+      </ul>
+
+      <div class="section-wide">
+        <h2>At a glance</h2>
+
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Need</th>
+                <th>Plain <code>Sidekiq::Job</code> (today)</th>
+                <th>ActiveJob</th>
+                <th>Reach for</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Retry by exception class</th>
+                <td><code>sidekiq_retry_in</code> branching inside the body</td>
+                <td><code>retry_on</code>, declared at the top</td>
+                <td><span class="verdict-aj">ActiveJob</span></td>
+              </tr>
+              <tr>
+                <th>Discard by exception class</th>
+                <td><code>sidekiq_retry_in</code> branching inside the body</td>
+                <td><code>discard_on</code>, declared at the top</td>
+                <td><span class="verdict-aj">ActiveJob</span></td>
+              </tr>
+              <tr>
+                <th>Backoff: fixed, polynomial, jitter</th>
+                <td><code>sidekiq_retry_in</code> (hand-rolled)</td>
+                <td><code>wait:</code>, <code>:polynomially_longer</code>, <code>jitter:</code></td>
+                <td><span class="verdict-aj">ActiveJob</span></td>
+              </tr>
+              <tr>
+                <th>Deploy-safe arguments</th>
+                <td>Positional ids — reorder across a deploy and in-flight jobs misbind</td>
+                <td>Keyword args — signature changes don't silently break in-flight jobs</td>
+                <td><span class="verdict-aj">ActiveJob</span></td>
+              </tr>
+              <tr>
+                <th>Boilerplate-free model resolution</th>
+                <td><code>find_by(id:)</code> guard in every <code>perform</code> body</td>
+                <td>GlobalID deserializes records automatically; deleted record raises <code>discard_on</code>-able error</td>
+                <td><span class="verdict-aj">ActiveJob</span></td>
+              </tr>
+              <tr>
+                <th>Observability events</th>
+                <td>Manual logging</td>
+                <td><code>ActiveSupport::Notifications</code> (incl. <code>discard.active_job</code>)</td>
+                <td><span class="verdict-aj">ActiveJob</span></td>
+              </tr>
+              <tr>
+                <th>Inline execution in tests across threads</th>
+                <td>Needs the <code>__global_test_mode</code> hack</td>
+                <td><code>perform_enqueued_jobs</code> works out of the box</td>
+                <td><span class="verdict-aj">ActiveJob</span></td>
+              </tr>
+              <tr>
+                <th>Queue selection</th>
+                <td><code>sidekiq_options queue:</code></td>
+                <td><code>queue_as</code></td>
+                <td><span class="verdict-aj">ActiveJob</span></td>
+              </tr>
+              <tr>
+                <th>Global retry cap</th>
+                <td><code>sidekiq_options retry: N</code></td>
+                <td><code>retry_on StandardError, attempts: N</code></td>
+                <td><span class="verdict-aj">ActiveJob</span></td>
+              </tr>
+              <tr>
+                <th>Tenant / <code>Current</code> context</th>
+                <td colspan="2">Carried by <code>Sidekiq::CurrentAttributes.persist(Current)</code> either way</td>
+                <td>Either</td>
+              </tr>
+              <tr>
+                <th>Bulk enqueue</th>
+                <td><code>push_bulk</code> / <code>perform_bulk</code> (at scale)</td>
+                <td><code>perform_all_later</code> (default API)</td>
+                <td>Depends</td>
+              </tr>
+              <tr>
+                <th>Retries routed to another queue</th>
+                <td><code>retry_queue:</code></td>
+                <td>✗</td>
+                <td><span class="verdict-sk">Sidekiq</span></td>
+              </tr>
+              <tr>
+                <th>Uniqueness</th>
+                <td><code>unique_for:</code> — best-effort lock on an args digest (faster)</td>
+                <td><code>discard_on</code> a domain uniqueness error (DB index / lock)</td>
+                <td>Depends</td>
+              </tr>
+              <tr>
+                <th>Run-after-fan-out callback</th>
+                <td><code>Sidekiq::Batch</code> <code>on(:complete)</code> / <code>on(:success)</code></td>
+                <td>✗ — no batch primitive</td>
+                <td><span class="verdict-sk">Sidekiq</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <h2>Additional benefits</h2>
+
+      <p>Beyond the side-by-sides, a few things come for free with <code>ActiveJob</code> that are easy to overlook:</p>
+
+      <ul>
+        <li>
+          <strong>Locale &amp; timezone carry over.</strong> A job formats dates and translates copy the same way the request that enqueued it did, instead of silently falling back
+          to the default.
+        </li>
+        <li>
+          <strong>Lifecycle callbacks.</strong> Cross-cutting concerns live as <code>around_perform</code> / <code>rescue_from</code> declarations rather than hand-written Sidekiq
+          middleware.
+        </li>
+        <li>
+          <strong>Custom argument serializers.</strong> Pass a domain type like any other argument once it's registered, instead of hand-packing it into a hash of primitives at
+          every call site.
+        </li>
+        <li>
+          <strong>One scheduling API.</strong> <code>set(wait:, wait_until:, queue:, priority:)</code> is the same fluent surface across every job — and the one the mailers already
+          use.
+        </li>
+        <li>
+          <strong>Less Sidekiq &amp; commercial-license lock-in.</strong> Jobs are written against the framework, not the adapter, so the backend stays a config choice rather than
+          a rewrite. And the Sidekiq-only features that keep a job on Sidekiq — Batch, <code>unique_for</code>, super_fetch, rate limiting — are paid Pro/Enterprise add-ons; every
+          plain <code>ActiveJob</code> is one that doesn't reach for them, keeping the commercial lock-in surface small.
+        </li>
+      </ul>
+
+      <h2>The concrete proposal</h2>
+
+      <p>Default to <code>ActiveJob</code> for ordinary work. Reach for <code>Sidekiq::Job</code> when we truly need the raw performance for massive amounts of trivial jobs.</p>
+
+      <p>
+        What we win is jobs that read as intent with less room for errors, arguments that survive a deploy, observable discards, and built-in test compatibility — on the default
+        framework Rails already runs our mail through. Sidekiq stays the engine; ActiveJob just makes the ordinary job a more legible default.
+      </p>
+    </article>
+
+    <footer class="post-footer">
+      <p><a href="../../index.html">Back to homepage</a></p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+      Prism.plugins.autoloader.languages_path = "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/"
+    </script>
+  </body>
+</html>

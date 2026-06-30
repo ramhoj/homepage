@@ -1,4 +1,5 @@
-// Minimal keyboard navigation for slides
+// Presentation runtime: keyboard/touch navigation, code tabs, slide counter,
+// training-mode notes, wake lock, and the slide timer.
 // Works with semantic IDs - no numbered slides required
 
 // Screen Wake Lock to prevent auto-lock on mobile devices
@@ -122,6 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateSlideCounter()
   updateNavigation()
   updateNotesToggleVisibility()
+  startSlideTimer()
 
   // Run Prism highlighting after DOM is ready
   if (typeof Prism !== 'undefined') {
@@ -219,6 +221,32 @@ function updateNotesToggleVisibility() {
 
   const hasNotes = currentSlide && currentSlide.querySelector('.speaker-notes')
   notesToggle.style.display = hasNotes ? '' : 'none'
+}
+
+// Slide timer
+let timerInterval = null
+
+function startSlideTimer() {
+  if (timerInterval) clearInterval(timerInterval)
+
+  const timerEl = document.getElementById('slide-timer')
+  if (!timerEl) return
+
+  let remaining = 5 * 60
+
+  function tick() {
+    const minutes = Math.floor(remaining / 60)
+    const seconds = remaining % 60
+    timerEl.textContent = `${minutes}:${String(seconds).padStart(2, '0')}`
+    timerEl.classList.toggle('timer-expired', remaining <= 0)
+    if (remaining <= 0) {
+      clearInterval(timerInterval)
+    }
+    remaining--
+  }
+
+  tick()
+  timerInterval = setInterval(tick, 1000)
 }
 
 // Re-highlight code and update UI when navigating (hash change)

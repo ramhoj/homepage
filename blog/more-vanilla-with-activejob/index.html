@@ -377,9 +377,10 @@ User::MergeJob.perform_later(user, other_user)</code></pre>
         <li>
           <strong>Middleware compatibility.</strong>
           We tested it. Tenant context is carried by <code>Sidekiq::CurrentAttributes</code>, which sits beneath the adapter and travels in the job payload, not on the wrapper. A
-          spec that enqueues under one tenant, makes a <em>different</em> tenant current, and then runs the job through our real server middleware confirms the original tenant is
+          spec that enqueues under one tenant, makes a <em>different</em> tenant current, and then drives the job the way the Sidekiq processor does confirms the enqueuing tenant is
           the one restored — on the first attempt and again on a <code>retry_on</code> retry, never the ambient one. The concern is legitimate in principle; in practice the context
-          rides below the layer that caused the scares, and the test is there to keep it that way.
+          rides below the layer that caused the scares, and the test is there to keep it that way. It has
+          <a href="#current-is-not-a-design-surface">rough edges</a>, but they are the ones a plain <code>Sidekiq::Job</code> has too.
         </li>
         <li>
           <strong>Retry semantics don't line up one-to-one.</strong> ActiveJob counts attempts its own way — an <code>executions</code> counter rather than the
@@ -398,6 +399,45 @@ User::MergeJob.perform_later(user, other_user)</code></pre>
           <code>Sidekiq::Job</code> will read as an explicit optimization decision.
         </li>
       </ul>
+
+      <h2 id="current-is-not-a-design-surface">Current is not a design surface</h2>
+
+      <p>
+        Tenant context survives the adapter, and it survives retries. That is worth knowing; it isn't worth designing on.
+        <code>Sidekiq::CurrentAttributes</code> snapshots <code>Current</code> into the payload at enqueue and restores it around <code>perform</code>. The general case holds — the
+        enqueuing tenant is what <code>perform</code> sees, on the first attempt and on every retry — and ambient worker state never leaks in: the Rails reloader blanks
+        <code>Current</code> before the middleware chain opens, so a payload without a snapshot runs with no tenant rather than with somebody else's. The edges are narrow, but
+        sharp:
+      </p>
+
+      <ul>
+        <li>
+          <strong>A retry re-snapshots.</strong> <code>retry_on</code> re-enqueues from <em>inside</em> the restored scope, so a job that reassigns <code>Current</code> mid-work is
+          retried as the tenant it switched to, not the one that enqueued it. Sidekiq's own retry re-pushes the original payload verbatim.
+        </li>
+        <li>
+          <strong>The restore is scoped to the middleware chain.</strong> Anything enqueued after it unwinds — a <code>Sidekiq::Batch</code> callback, a death handler,
+          <code>sidekiq_retries_exhausted</code> — carries no tenant at all. That's why those call sites already thread <code>company_id</code> through by hand.
+        </li>
+        <li>
+          <strong>It rests on nesting order.</strong> The reloader has to wrap the middleware chain, and <code>Load</code> has to stay outermost inside it. Both hold today; neither
+          is asserted anywhere except in that one spec.
+        </li>
+        <li>
+          <strong>Attributes can vanish silently.</strong> <code>Load</code> rescues the <code>NoMethodError</code> and drops attributes the class no longer responds to, so renaming
+          one drops it from every in-flight payload without an error.
+        </li>
+        <li>
+          <strong>Everything on <code>Current</code> rides along.</strong> Not just the tenant: set <code>disable_company_scope</code> mid-job and raise, and the retry inherits it.
+        </li>
+      </ul>
+
+      <p>
+        So the safer habit is the boring one: pass what the job needs and resolve the tenant from it. <code>Candidate.find(id).company</code> is a fact derived from the argument the
+        job was handed; <code>Current.company</code> is ambient state restored by two middlewares and an executor hook. They usually agree. Only one of them is checkable at the call
+        site, and only one still holds when the job is replayed from the dead set or invoked from a batch callback. Treat <code>Current</code> as scoping convenience and telemetry,
+        not as the authority a job makes decisions on.
+      </p>
 
       <h2>Our compatibility</h2>
 
@@ -480,7 +520,10 @@ User::MergeJob.perform_later(user, other_user)</code></pre>
               </tr>
               <tr>
                 <th>Tenant / <code>Current</code> context</th>
-                <td colspan="2">Carried by <code>Sidekiq::CurrentAttributes.persist(Current)</code> either way</td>
+                <td colspan="2">
+                  Carried by <code>Sidekiq::CurrentAttributes.persist(Current)</code> either way — with the
+                  <a href="#current-is-not-a-design-surface">same rough edges</a> either way
+                </td>
                 <td>Either</td>
               </tr>
               <tr>

@@ -106,12 +106,12 @@
     <section class="slide slide--gradient" id="title">
       <div class="slide-inner">
         <h1 class="slide-title slide-title--large">Measuring<br>Sameness</h1>
-        <p class="slide-subtitle">A deterministic harness for moving a page from Ember to Rails — and the parts of it we had to build twice</p>
+        <p class="slide-subtitle">A deterministic harness for moving a page from Ember to Rails — and how we got there</p>
 
         <p class="speaker-notes">
-          This is an innovation-project experiment, so nothing here is a plan anyone has to adopt. What I want to
-          show you is the machinery, because I think the interesting result isn't the migrated page — it's what it
-          took to <em>prove</em> the migrated page.
+          This inovation week I was intressted in exploring what it would take to migrate an Ember SPA "page" to a Rails SSR page.
+          I want to share some of the process and the harness I got after a week spent together with Claude. One page got ported,
+          but that's the least intressting part.
         </p>
       </div>
 
@@ -126,22 +126,19 @@
          ================================================================ -->
     <section class="slide slide--dark" id="problem">
       <div class="slide-inner">
-        <h2 class="slide-title">Rewriting the page is the easy half</h2>
+        <h2 class="slide-title">Rewriting is easier than verifying</h2>
 
         <p class="slide-text">
-          Any of us can write the Rails for a settings page in an afternoon. What nobody can do in an afternoon is
-          answer the next question: <strong>is it the same page?</strong>
+          I ran a similar experiment once before and it was a compleate whack-a-mole. While I got to 90% of a page port
+          quite quickly, the last 10% was a mess, and it come down to verifibility.
         </p>
+
+        <!-- Note to agent: THis needs framing, and rendered noticably smaller so that the quote fits the page too -->
+        <img class="demo-frame__shot" src="frames/whack-a-mole.png" alt="Whak-a-mole">
 
         <div class="quote">
           <p class="quote-text">Ember is the specification, and sameness is measured rather than reviewed.</p>
         </div>
-
-        <p class="slide-text">
-          A difference is a defect <em>by default</em> — including where the Rails version is better. The
-          uncomfortable consequence is the right one: the harness will make you reproduce Ember's bugs. A control
-          with no accessible name keeps its missing accessible name.
-        </p>
 
         <p class="speaker-notes">
           The reason for the "even where Rails is better" rule: a migration that also improves things is a migration
@@ -165,12 +162,12 @@
     <section class="slide slide--dark" id="the-plan">
       <div class="slide-inner">
         <p class="chapter-label">Chapter 1 — How it started</p>
-        <h2 class="slide-title">We wrote a plan, then stopped writing it</h2>
+        <h2 class="slide-title">We wrote a plan, without perfecting it</h2>
 
         <p class="slide-text">
-          The plan got to <em>plausible</em> and then we pointed it at one real page instead of making it airtight.
-          That was the single best decision in the project, and we only know it was because of what the real page
-          did to the plan.
+          Turns out, comparing real application pages isn't trivial. In a day we got to a <em>plausible</em> plan but
+          at over 8,000 lines I refused reviwing any more iterations. <strong>The best decision this week came
+          from being lazy.</strong>
         </p>
 
         <div class="stat-row">
@@ -179,10 +176,8 @@
         </div>
 
         <p class="slide-text">
-          A plan longer than the thing it plans has a specific failure mode: it doesn't get read, and an unread
-          constraint isn't a constraint. So the rule since then is
-          <strong>the next migration adds no new plan</strong> — a discovery becomes a decision, and only a decision
-          that changes what someone must <em>do</em> is allowed to grow a document.
+          Building the wrong thing can be expsneive but so can planing the thing that can't be built. I moved on to
+          proving a imperfect plan.
         </p>
 
         <p class="speaker-notes">

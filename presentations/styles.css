@@ -1031,6 +1031,159 @@ body:has(.slide:target) .slide:not(:target) {
   color: var(--tt-primary);
 }
 
+/* Time's-up curtain */
+.time-up-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+
+.time-up-overlay.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.time-up-panels {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+
+.time-up-panel {
+  flex: 1;
+  background: var(--tt-grey-89);
+  transform: translateY(-100%);
+  transition: transform 0.55s cubic-bezier(0.65, 0, 0.35, 1);
+  transition-delay: calc(var(--panel-index) * 70ms);
+}
+
+.time-up-panel:nth-child(even) {
+  background: var(--tt-primary-deep);
+}
+
+.time-up-overlay.is-visible .time-up-panel {
+  transform: translateY(0);
+}
+
+.time-up-content {
+  position: relative;
+  text-align: center;
+  padding: var(--space-lg);
+  color: var(--tt-white);
+  opacity: 0;
+  transform: translateY(1.5rem);
+  transition: opacity 0.5s ease 0.6s, transform 0.5s ease 0.6s;
+}
+
+.time-up-overlay.is-visible .time-up-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.time-up-clock {
+  width: 5rem;
+  height: 5rem;
+  margin: 0 auto var(--space-md);
+}
+
+.time-up-clock svg {
+  width: 100%;
+  height: 100%;
+}
+
+.time-up-clock-face {
+  fill: none;
+  stroke: var(--tt-primary);
+  stroke-width: 4;
+  stroke-dasharray: 264;
+  stroke-dashoffset: 264;
+  transform-origin: center;
+  transform: rotate(-90deg);
+}
+
+.time-up-overlay.is-visible .time-up-clock-face {
+  animation: time-up-draw 0.9s ease-out 0.5s forwards;
+}
+
+.time-up-hand {
+  stroke: var(--tt-white);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transform-origin: 50px 50px;
+  opacity: 0;
+}
+
+.time-up-overlay.is-visible .time-up-hand {
+  animation: time-up-spin 1.2s cubic-bezier(0.5, 0, 0.2, 1) 0.7s forwards;
+}
+
+.time-up-overlay.is-visible .time-up-hand-hour {
+  animation-duration: 1.6s;
+}
+
+.time-up-kicker {
+  margin: 0 0 var(--space-sm);
+  font-size: 0.9rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--tt-primary);
+}
+
+.time-up-title {
+  margin: 0 0 var(--space-md);
+  font-size: clamp(2rem, 6vw, 4rem);
+  line-height: 1.1;
+}
+
+.time-up-subtitle {
+  margin: 0 0 var(--space-lg);
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  color: var(--tt-grey-13);
+}
+
+.time-up-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--tt-grey-43);
+}
+
+@keyframes time-up-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes time-up-spin {
+  0% {
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(720deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .time-up-panel,
+  .time-up-content {
+    transition-duration: 0.01ms;
+    transition-delay: 0ms;
+  }
+
+  .time-up-overlay.is-visible .time-up-clock-face,
+  .time-up-overlay.is-visible .time-up-hand {
+    animation: none;
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
 .slide-counter {
   position: fixed;
   bottom: var(--space-lg);

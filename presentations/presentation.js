@@ -241,12 +241,63 @@ function startSlideTimer() {
     timerEl.classList.toggle('timer-expired', remaining <= 0)
     if (remaining <= 0) {
       clearInterval(timerInterval)
+      showTimeUpOverlay()
     }
     remaining--
   }
 
   tick()
   timerInterval = setInterval(tick, 1000)
+}
+
+// Time's-up curtain: panels wipe across the screen, then a thank-you card lands.
+function showTimeUpOverlay() {
+  if (document.getElementById('time-up-overlay')) return
+
+  const overlay = document.createElement('div')
+  overlay.id = 'time-up-overlay'
+  overlay.className = 'time-up-overlay'
+
+  const panels = document.createElement('div')
+  panels.className = 'time-up-panels'
+  for (let i = 0; i < 6; i++) {
+    const panel = document.createElement('div')
+    panel.className = 'time-up-panel'
+    panel.style.setProperty('--panel-index', i)
+    panels.appendChild(panel)
+  }
+
+  const content = document.createElement('div')
+  content.className = 'time-up-content'
+  content.innerHTML = `
+    <div class="time-up-clock" aria-hidden="true">
+      <svg viewBox="0 0 100 100" role="presentation">
+        <circle class="time-up-clock-face" cx="50" cy="50" r="42" />
+        <line class="time-up-hand time-up-hand-hour" x1="50" y1="50" x2="50" y2="30" />
+        <line class="time-up-hand time-up-hand-minute" x1="50" y1="50" x2="50" y2="18" />
+      </svg>
+    </div>
+    <p class="time-up-kicker">Time's up</p>
+    <h2 class="time-up-title">Thank you for your time</h2>
+  `
+
+  overlay.appendChild(panels)
+  overlay.appendChild(content)
+  document.body.appendChild(overlay)
+
+  // Force a frame so the entry animations start from their initial state.
+  requestAnimationFrame(() => overlay.classList.add('is-visible'))
+
+  function dismiss(event) {
+    if (event.type === 'keydown' && event.key !== 'Escape') return
+    document.removeEventListener('keydown', dismiss)
+    overlay.removeEventListener('click', dismiss)
+    overlay.classList.add('is-leaving')
+    overlay.addEventListener('transitionend', () => overlay.remove(), { once: true })
+  }
+
+  document.addEventListener('keydown', dismiss)
+  overlay.addEventListener('click', dismiss)
 }
 
 // Re-highlight code and update UI when navigating (hash change)

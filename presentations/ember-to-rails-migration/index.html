@@ -146,6 +146,16 @@
       color: var(--tt-grey-31);
     }
 
+    /* One element, as the sweep sees it. Inline SVG rather than a generated
+       image so the numbers stay copy-pasteable and the type scales with the
+       slide instead of blurring. */
+    .diagram {
+      display: block;
+      width: 100%;
+      max-width: 1040px;
+      margin: var(--space-md) auto 0;
+    }
+
     .stat-row {
       display: flex;
       justify-content: center;
@@ -295,13 +305,10 @@
           </div>
         </div>
 
-        <div class="quote" style="margin-top: var(--space-lg);">
-          <p class="quote-text">The comparators turned out to be the easy part.</p>
-        </div>
-
         <p class="slide-text">
           Ninety-one decisions are on the record. Eight of them are about <em>how to compare</em>.
           Thirty-two are about <em>whether the thing measured is the thing meant</em>.
+          The comparators turned out to be the easy part.
         </p>
 
         <p class="speaker-notes">
@@ -468,8 +475,10 @@ bin/ssr-migration/verify aria settings-overview  # just one</code></pre>
         </p>
 
         <p class="slide-text">
-          Then it reports how many elements it could only match <em>by appearance</em>. On this page, 39. That
-          number is the gate auditing itself — if it climbs, more of the verdict is resting on resemblance.
+          Some elements have no identity to match on — a decorative <code>span</code>, a wrapper <code>div</code>
+          with no role, no name and no text. For those it falls back to <em>“same size, same paint, same place”</em>,
+          and then prints how many times it had to. On this page, <strong>39</strong>: the 39 comparisons where the
+          gate can't actually prove it compared the same box twice.
         </p>
 
         <div class="code-container">
@@ -483,6 +492,17 @@ bin/ssr-migration/verify aria settings-overview  # just one</code></pre>
         </p>
 
         <p class="speaker-notes">
+          On the 39, if it lands flat: the gate's whole job is to compare an element on the left with
+          <em>the same</em> element on the right. When it can only say "well, this one is the same size and colour
+          and roughly there", it might be comparing the wrong two boxes — so a divergence could be nonsense, and
+          worse, a real one could cancel out. 39 is the gate telling you how much of its own green is resting on
+          resemblance. It's a number to watch rather than a number to fix: if it climbs sharply on a page, the
+          verdict is worth less than it looks.
+          <br><br>
+          Measured rather than assumed, incidentally — renaming the h1 end to end didn't move it, because the h1
+          still matches on its role inside its card. What falls through is only what never had a role to fall back
+          on.
+          <br><br>
           Two rules keep the report readable. A property divergence is named at the <strong>outermost</strong>
           element it starts from; geometry is reported at its frontier and counted below it — "and 14 elements
           inside those". One wrong container moves everything inside it, and a list of forty consequences is a
@@ -502,12 +522,120 @@ bin/ssr-migration/verify aria settings-overview  # just one</code></pre>
 
       <nav class="slide-nav">
         <a href="#aria" class="nav-link">←</a>
+        <a href="#rects" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Slide 9: What "compares every rect" actually means
+         ================================================================ -->
+    <section class="slide slide--dark" id="rects">
+      <div class="slide-inner">
+        <h2 class="slide-title">One element, as the gate sees it</h2>
+
+        <svg class="diagram" viewBox="0 0 1040 380" role="img"
+             aria-label="Left: a card containing a link, with its x, y, width and height marked as measurement lines. Right: the same element's recorded numbers in two columns, ember and rails. The x row reads 722.09 against 722.08 and is highlighted; every other row is identical.">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="#57595f"/>
+            </marker>
+          </defs>
+
+          <text x="40" y="40" fill="#909095" font-size="13" font-family="system-ui, sans-serif">what the browser laid out</text>
+          <text x="560" y="40" fill="#909095" font-size="13" font-family="system-ui, sans-serif">what the sweep wrote down, once per implementation</text>
+
+          <!-- the page fragment -->
+          <text x="40" y="80" fill="#57595f" font-size="10" font-family="ui-monospace, monospace">subtree root</text>
+          <rect x="40" y="88" width="420" height="200" rx="10" fill="#232326" stroke="#34353a"/>
+          <text x="56" y="118" fill="#909095" font-size="13" font-family="system-ui, sans-serif">Departments and roles</text>
+          <rect x="56" y="132" width="250" height="8" rx="4" fill="#34353a"/>
+          <rect x="56" y="150" width="180" height="8" rx="4" fill="#34353a"/>
+
+          <rect x="100" y="200" width="270" height="26" fill="none" stroke="#7ed321" stroke-dasharray="4 3"/>
+          <text x="110" y="218" fill="#7ed321" font-size="11" font-family="system-ui, sans-serif">Configure departments and roles →</text>
+
+          <!-- measurement lines -->
+          <line x1="40" y1="213" x2="100" y2="213" stroke="#57595f" stroke-dasharray="3 3"/>
+          <text x="62" y="208" fill="#909095" font-size="12" font-family="ui-monospace, monospace">x</text>
+          <line x1="100" y1="88" x2="100" y2="200" stroke="#57595f" stroke-dasharray="3 3"/>
+          <text x="108" y="184" fill="#909095" font-size="12" font-family="ui-monospace, monospace">y</text>
+
+          <line x1="100" y1="244" x2="370" y2="244" stroke="#57595f"/>
+          <line x1="100" y1="239" x2="100" y2="249" stroke="#57595f"/>
+          <line x1="370" y1="239" x2="370" y2="249" stroke="#57595f"/>
+          <text x="229" y="264" fill="#909095" font-size="12" font-family="ui-monospace, monospace">w</text>
+
+          <line x1="392" y1="200" x2="392" y2="226" stroke="#57595f"/>
+          <line x1="387" y1="200" x2="397" y2="200" stroke="#57595f"/>
+          <line x1="387" y1="226" x2="397" y2="226" stroke="#57595f"/>
+          <text x="404" y="217" fill="#909095" font-size="12" font-family="ui-monospace, monospace">h</text>
+
+          <line x1="474" y1="190" x2="540" y2="190" stroke="#57595f" marker-end="url(#arrow)"/>
+
+          <!-- the record -->
+          <text x="560" y="104" fill="#7ed321" font-size="13" font-family="ui-monospace, monospace">link "Configure departments and roles →"</text>
+          <text x="900" y="132" fill="#57595f" font-size="11" text-anchor="end" font-family="ui-monospace, monospace">ember</text>
+          <text x="1010" y="132" fill="#57595f" font-size="11" text-anchor="end" font-family="ui-monospace, monospace">rails</text>
+          <line x1="560" y1="142" x2="1010" y2="142" stroke="#34353a"/>
+
+          <rect x="552" y="150" width="466" height="24" rx="4" fill="rgba(244,63,133,0.16)"/>
+          <text x="568" y="167" fill="#dddee1" font-size="13" font-family="ui-monospace, monospace">x</text>
+          <text x="900" y="167" fill="#F43F85" font-size="13" text-anchor="end" font-family="ui-monospace, monospace">722.09</text>
+          <text x="1010" y="167" fill="#F43F85" font-size="13" text-anchor="end" font-family="ui-monospace, monospace">722.08</text>
+
+          <text x="568" y="193" fill="#909095" font-size="13" font-family="ui-monospace, monospace">y</text>
+          <text x="900" y="193" fill="#909095" font-size="13" text-anchor="end" font-family="ui-monospace, monospace">512.00</text>
+          <text x="1010" y="193" fill="#909095" font-size="13" text-anchor="end" font-family="ui-monospace, monospace">512.00</text>
+
+          <text x="568" y="219" fill="#909095" font-size="13" font-family="ui-monospace, monospace">width</text>
+          <text x="900" y="219" fill="#909095" font-size="13" text-anchor="end" font-family="ui-monospace, monospace">268.55</text>
+          <text x="1010" y="219" fill="#909095" font-size="13" text-anchor="end" font-family="ui-monospace, monospace">268.55</text>
+
+          <text x="568" y="245" fill="#909095" font-size="13" font-family="ui-monospace, monospace">height</text>
+          <text x="900" y="245" fill="#909095" font-size="13" text-anchor="end" font-family="ui-monospace, monospace">20.00</text>
+          <text x="1010" y="245" fill="#909095" font-size="13" text-anchor="end" font-family="ui-monospace, monospace">20.00</text>
+
+          <text x="568" y="271" fill="#909095" font-size="13" font-family="ui-monospace, monospace">color</text>
+          <text x="900" y="271" fill="#909095" font-size="13" text-anchor="end" font-family="ui-monospace, monospace">#57595f</text>
+          <text x="1010" y="271" fill="#909095" font-size="13" text-anchor="end" font-family="ui-monospace, monospace">#57595f</text>
+
+          <text x="568" y="297" fill="#909095" font-size="13" font-family="ui-monospace, monospace">font-size</text>
+          <text x="900" y="297" fill="#909095" font-size="13" text-anchor="end" font-family="ui-monospace, monospace">14px</text>
+          <text x="1010" y="297" fill="#909095" font-size="13" text-anchor="end" font-family="ui-monospace, monospace">14px</text>
+
+          <text x="568" y="330" fill="#57595f" font-size="12" font-style="italic" font-family="system-ui, sans-serif">…and every other property the sweep collects, identical</text>
+        </svg>
+
+        <p class="demo-caption">
+          Four numbers and a pile of computed styles, for every element on the page, on both sides. This is the
+          whole technique.
+        </p>
+
+        <p class="speaker-notes">
+          Worth saying out loud: the gate never compares screenshots and never compares markup. It compares
+          <em>numbers</em>. Everything a browser does to a page ends up as a box and a set of resolved properties,
+          and those survive being reached by completely different HTML — which is the only reason a rewrite can be
+          checked at all.
+          <br><br>
+          The x row is the real finding from this page, and the reason it's the only one: at zero tolerance,
+          nothing else in the subtree differs by any amount. 722.09 against 722.08 is a hundredth of a pixel, which
+          is the smallest number the sweep can represent — it rounds to two decimals. So the true difference is
+          somewhere underneath the floor of what we can measure.
+          <br><br>
+          If someone asks how the two get lined up in the first place, that's the previous slide: the left column
+          and the right column are the same element because the gate matched them, not because they were in the
+          same position in the tree.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#layout" class="nav-link">←</a>
         <a href="#page" class="nav-link">→</a>
       </nav>
     </section>
 
     <!-- ================================================================
-         Slide 9: The migrated page
+         Slide 10: The migrated page
          ================================================================ -->
     <section class="slide slide--dark" id="page">
       <div class="slide-inner">
@@ -532,13 +660,13 @@ bin/ssr-migration/verify aria settings-overview  # just one</code></pre>
           Worth saying out loud: no human had reviewed this when the gates went green. The first review comment on
           the page was about naming, not about rendering.
           <br><br>
-          Everything on the previous four slides is what made that possible — and none of it is possible unless the
+          Everything on the previous five slides is what made that possible — and none of it is possible unless the
           same URL can answer with either implementation. Which is the next slide.
         </p>
       </div>
 
       <nav class="slide-nav">
-        <a href="#layout" class="nav-link">←</a>
+        <a href="#rects" class="nav-link">←</a>
         <a href="#rollout" class="nav-link">→</a>
       </nav>
     </section>
@@ -662,6 +790,26 @@ bin/ssr-migration/verify aria settings-overview  # just one</code></pre>
           <br><br>
           It also names its own contaminants. A flash message that appeared on one side and not the other used to
           read as a real divergence; now the instrument says so.
+          <br><br>
+          <strong>If asked what caused it — we don't know, and that's written down rather than papered over.</strong>
+          What is established: it's reproducible, not noise (Rails against Rails is a zero floor, Ember against
+          itself is steady), and no computed property differs anywhere on the page — the zero-tolerance run says
+          "0 property and 1 geometry divergence". The obvious suspect was a rebase that moved Ember's banner height
+          under this page, and it doesn't fit: a width change propagates, so every container between the page root
+          and that link would have moved. They didn't. Only the leaf differs. Chasing it further was judged not
+          worth it against a difference this size — a cost judgement, recorded as one so it can be overturned
+          cheaply.
+          <br><br>
+          <strong>And on how it proceeded — it didn't block anything, structurally.</strong> The instrument isn't a
+          gate: <code>verify all</code> runs it last and <em>drops its exit status</em>, on reasoning written before
+          there was a finding to apply it to. So the choice wasn't "ship or don't", it was what to do about a red
+          that never goes green. A threshold was refused — that's the number someone tunes until the report goes
+          quiet. A waiver file was refused too: a second budget mechanism, written, protected and reviewed, for a
+          comparator that never runs in CI and blocks nothing, with a total yield of one page's 36 pixels. What it
+          got instead was a written record keyed to the page and the region, so the next person who sees red finds
+          an answer instead of a mystery. It also left something open, which is the honest part: the layout gate
+          tolerates a whole pixel of movement, and we now have a record of what a <em>hundredth</em> of one does to
+          a glyph.
         </p>
       </div>
 
@@ -679,7 +827,7 @@ bin/ssr-migration/verify aria settings-overview  # just one</code></pre>
         <figure class="plate">
           <img src="plates/sabotage.jpg"
                alt="Mid-century modern technical-manual illustration: flat screen-printed shapes, fine ink linework, subtle paper grain and slight ink misregistration. Restricted palette of warm off-white, deep charcoal, one acid-lime accent and one hot-pink accent, on a near-black charcoal background. Calm, dry, faintly witty. No text, no lettering, no numbers, no logos. Wide 16:9 composition with generous empty space. Subject: a figure in a lab coat, seen from behind and entirely unhurried, using long tweezers to lift one small component out of an intricate brass machine on a workbench. Five instruments on tripods stand in a semicircle facing the machine; two of them have a small lamp glowing on top and three are dark.">
-          <figcaption>Nobody trusts an alarm they have not set off on purpose.</figcaption>
+          <figcaption>Until you break it on purpose, you don't know which ones were watching.</figcaption>
         </figure>
 
         <p class="speaker-notes">
@@ -748,9 +896,9 @@ bin/ssr-migration/verify aria settings-overview  # just one</code></pre>
           And it settled what each gate is actually for. Row 8 is the argument for the aria gate — one gate, alone.
           Rows 4 and 5 are the argument for layout: among gates it's the only one that sees appearance at all.
           <br><br>
-          The uncomfortable row is conformance: it caught nothing aria didn't, at five times the wall clock. But
-          that's a fact about the mutation set, not the gate — not one of these nine changed what a control
-          <em>does</em> when you press it. The honest conclusion is that this set under-samples behaviour.
+          The uncomfortable row is conformance: it caught nothing aria didn't, at 45 seconds a page against aria's
+          8.5. But that's a fact about the mutation set, not the gate — not one of these nine changed what a
+          control <em>does</em> when you press it. The honest conclusion is that this set under-samples behaviour.
         </p>
       </div>
 
@@ -784,19 +932,32 @@ bin/ssr-migration/verify aria settings-overview  # just one</code></pre>
               silently pointing at another host. <span class="caught">keep</span></td></tr>
             <tr><td><strong>layout</strong></td><td>The only gate that sees appearance at all. A 24px shift, a
               changed colour. <span class="caught">keep</span></td></tr>
-            <tr><td><strong>conformance</strong></td><td>Written first, trusted most, five times the wall clock —
-              and it caught nothing aria didn't. <span class="false-green">unproven</span></td></tr>
+            <tr><td><strong>conformance</strong></td><td>What's tests behaviour, not just rendered results.
+              Does this form actually persists something?</td></tr>
           </tbody>
         </table>
 
         <p class="slide-text" style="margin-top: var(--space-md);">
-          <strong>Mutation-test the gates before the second page, not after the tenth.</strong>
+          Conformance is the only one of the three that <em>survives</em>: aria and layout compare against Ember,
+          so they die with it.
         </p>
 
         <p class="speaker-notes">
-          Be careful with the conformance row — I'm not saying delete it. Not one of the nine planted bugs changed
-          what a control <em>does</em> when you press it, and that's the only thing conformance is for. It's the one
-          gate still resting on an argument rather than a measurement. A to-do, not a verdict.
+          Be careful with the conformance row — I am not saying delete it, and the paragraph under the table is the
+          bit to actually say out loud. The mutation table can only ever measure <em>differential detection while
+          both implementations exist</em>. That is one of conformance's two jobs. The other one is being the
+          regression suite the Rails page keeps forever, and no mutation test can see it, because the test runs
+          while Ember is still there to compare against.
+          <br><br>
+          Where it lives makes that concrete: <code>spec/playwright/settings/overview_spec.rb</code>, filed by
+          subject next to specs that have nothing to do with any of this. When the page rolls out, the runner stops
+          generating the Ember half and what's left is a normal system spec that never moved file.
+          <br><br>
+          On the "before the second page" line, if asked: it is about when you first measure, not a standing
+          ritual. Re-run it when the mutation set changes character — the obvious next one is a page whose
+          behaviour isn't nearly all rendering. And no, a gate doesn't get dropped because one page didn't need it.
+          The table is a claim about the stack, and one page is a biased sample of it — which is exactly what the
+          conformance row turned out to be.
           <br><br>
           If asked <em>what does conformance uniquely see?</em> — three things: a second state after a click, a
           redirect, and a write. This page has one of each. The click is covered: pick a checklist step, the panel
@@ -856,7 +1017,9 @@ bin/ssr-migration/verify aria settings-overview  # just one</code></pre>
         <ul class="takeaways">
           <li><strong>Primitives</strong> — buttons, badges, dropdowns. View-only, <em>no domain logic</em>, every class
             string from one source per primitive so the same button can't be re-derived on two hundred pages.
-            Parity-tested against the Ember original for <em>every variant the application actually uses</em>.</li>
+            And only ever <em>the branches the page in hand actually reaches</em> — the migrated button is a narrow
+            subset of the Ember one, extended by the next page that needs more, parity-tested against the original
+            each time.</li>
           <li><strong>Surfaces</strong> — shared chrome. The global banner and a section's sidebar. Peers of pages
             rather than a special case. Each page's baseline
             <em>excludes</em> the surfaces it renders, so a surface is measured in one place instead of in every page
@@ -880,8 +1043,15 @@ bin/ssr-migration/verify aria settings-overview  # just one</code></pre>
           generators are mounted over and over — the candidate flyout alone appears 20 times. Deduplicated, it's
           roughly 200 distinct features across 450 mount points. And 43 primitives cover all of them.
           <br><br>
-          The "every variant the application actually uses" bit isn't a promise, it's asserted. There's a demand map
-          that reports which primitive variants the app uses and where, and the parity spec has to cover them.
+          The "only the branches you need" bit isn't a slogan, it's in the code. The migrated button's own comment
+          opens "this is a narrow subset of a full button… everything else is added by the page that first needs
+          it", and a few lines down, "no caller takes a trigger yet, so this is the only weight in use". Which
+          primitives a page needs at all is computed, not guessed — a demand map derives it per manifest from the
+          Ember source.
+          <br><br>
+          The trade is deliberate. You carry a primitive that's incomplete for a while, and in exchange you never
+          build a variant on a guess about who might want it. Extending one later is cheap precisely because it's
+          parity-tested: add the variant to the class module, the parity spec and the preview in one commit.
         </p>
       </div>
 

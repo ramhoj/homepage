@@ -176,8 +176,8 @@
         </div>
 
         <p class="slide-text">
-          Building the wrong thing can be expsneive but so can planing the thing that can't be built. I moved on to
-          proving a imperfect plan.
+          Building the wrong thing can be expsneive but so can planing something that can't be built. I moved on to
+          proving an imperfect plan.
         </p>
 
         <p class="speaker-notes">
@@ -201,18 +201,17 @@
          ================================================================ -->
     <section class="slide slide--dark" id="preconditions">
       <div class="slide-inner">
-        <h2 class="slide-title">The plan was about comparing. The work was about preconditions.</h2>
+        <h2 class="slide-title">I worked in a parallel to a three day continous Claude session.</h2>
 
         <div class="comparison">
           <div class="comparison-side">
             <p class="chapter-label" style="margin-bottom: var(--space-sm);">What the plan was</p>
             <h3>Five comparison algorithms</h3>
-            <p>Diff the trees. Diff the styles. Diff the pixels. Nothing in it said what makes a comparison
-              <em>mean</em> anything.</p>
+            <p>Diff the trees. Diff the styles. Diff the pixels.
           </div>
 
           <div class="comparison-side">
-            <p class="chapter-label" style="margin-bottom: var(--space-sm);">What it cost</p>
+            <p class="chapter-label" style="margin-bottom: var(--space-sm);">Where most time was spent</p>
             <h3>Seven preconditions</h3>
             <p>Every one learned by being violated first: right implementation, declared data, a stable environment,
               a baseline that isn't quietly describing something else.</p>
@@ -220,10 +219,10 @@
         </div>
 
         <div class="quote" style="margin-top: var(--space-lg);">
-          <p class="quote-text">The comparators turned out to be the easy part, for a reason visible in advance if
-            anyone had looked: <strong>we did not write them.</strong></p>
+          <p class="quote-text">The comparators turned out to be the easy part.</p>
         </div>
 
+        <!-- Note to agent: These numbers needs to be updated, we have 91 recorded decisions -->
         <p class="slide-text">
           Of the first 33 decisions, five were about <em>how to compare</em>. Fourteen were about
           <em>whether the thing measured is the thing meant</em>.
@@ -290,8 +289,7 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
 
         <p class="slide-text" style="margin-top: var(--space-md);">
           <strong>Gates fail the build. Instruments report and a human decides.</strong> A check that produces
-          judgement calls is a check that will eventually be tuned until it passes — and a gate that gets tuned is
-          worse than no gate.
+          judgement calls is a check that will eventually be tuned until it passes too leniently.
         </p>
 
         <p class="speaker-notes">
@@ -317,8 +315,9 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
         <h2 class="slide-title">The accessibility tree as the diffable artefact</h2>
 
         <p class="slide-text">
-          You can't diff two DOMs — the Rails markup is deliberately allowed to differ. But the browser will hand you
-          what the page <em>means</em>, and that is text, and text diffs.
+          My first idea was a perfect DOM diff but replicating Ember's markup exactly is both fragile forces us
+          to carry over every blemish and worse — set us up for a 1:1 port rather than a true idomatic migraiton that
+          that is maintainable.
         </p>
 
         <div class="code-container">
@@ -334,9 +333,8 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
         </div>
 
         <p class="slide-text" style="margin-top: var(--space-md);">
-          That last line is the whole argument for this gate. Point the link somewhere else and its text is
-          identical, its role is identical, and <strong>every pixel of it is identical</strong>. Nothing else in the
-          stack looks at an attribute with no appearance.
+          Playwright ships with <code>aria_snapshot</code> which we can use to determine the content of a page,
+          without loosing non-visiual accessibility content. It's fast and gives us the implementation freedom we need.
         </p>
 
         <p class="speaker-notes">

@@ -112,6 +112,40 @@
       border: 1px solid var(--tt-grey-64);
     }
 
+    /* A mood-setter: one picture, one line, no data. Contained rather than
+       full-bleed, because a generated image at an aspect ratio nobody chose
+       reads as a deliberate plate this way and as a bad crop the other. */
+    .plate {
+      width: 100%;
+      max-width: 880px;
+      margin: 0 auto;
+      padding: var(--space-sm);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    /* The alt text here is the generation prompt, so it is long. Transparent
+       keeps the plate an empty plinth until the file lands instead of a wall
+       of prompt; the alt itself is untouched, so a screen reader still gets it. */
+    .plate img {
+      display: block;
+      color: transparent;
+      width: 100%;
+      min-height: 38vh;
+      max-height: 58vh;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+
+    .plate figcaption {
+      margin: var(--space-md) auto 0;
+      max-width: 640px;
+      text-align: center;
+      font-size: 1.15rem;
+      line-height: 1.45;
+      color: var(--tt-grey-31);
+    }
+
     .stat-row {
       display: flex;
       justify-content: center;
@@ -171,7 +205,7 @@
 
         <p class="slide-text">
           I ran a similar experiment once before and it was a complete whack-a-mole. I got to 90% of a page quickly,
-          and then the last 10% was a mess — because I had no way to tell what was still different.
+          and then the last 10% was a mess.
         </p>
 
         <figure class="inline-figure">
@@ -303,6 +337,28 @@
 
       <nav class="slide-nav">
         <a href="#preconditions" class="nav-link">←</a>
+        <a href="#plate-instruments" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Plate: a beat before the four gates
+         ================================================================ -->
+    <section class="slide slide--dark" id="plate-instruments">
+      <div class="slide-inner">
+        <figure class="plate">
+          <img src="plates/instruments.jpg"
+               alt="Mid-century modern technical-manual illustration: flat screen-printed shapes, fine ink linework, subtle paper grain and slight ink misregistration. Restricted palette of warm off-white, deep charcoal, one acid-lime accent and one hot-pink accent, on a near-black charcoal background. Calm, dry, faintly witty. No text, no lettering, no numbers, no logos. Wide 16:9 composition with generous empty space. Subject: four completely different measuring instruments standing in a neat row on a dark workbench, all of them pointed at the same small blank rectangle of paper lying in front of them — a brass vernier caliper, a spirit level, a jeweller's loupe on a stand, and a large plate camera on a tripod. Each instrument casts one soft shadow. Slightly elevated three-quarter view.">
+          <figcaption>Four gates. Four different ways of being hard to fool.</figcaption>
+        </figure>
+
+        <p class="speaker-notes">
+          Breather. The next four slides are the instruments one at a time — say the line and move on.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#chapter-harness" class="nav-link">←</a>
         <a href="#stack" class="nav-link">→</a>
       </nav>
     </section>
@@ -348,7 +404,7 @@ bin/ssr-migration/verify aria settings-overview  # just one</code></pre>
       </div>
 
       <nav class="slide-nav">
-        <a href="#chapter-harness" class="nav-link">←</a>
+        <a href="#plate-instruments" class="nav-link">←</a>
         <a href="#aria" class="nav-link">→</a>
       </nav>
     </section>
@@ -611,6 +667,28 @@ bin/ssr-migration/verify aria settings-overview  # just one</code></pre>
 
       <nav class="slide-nav">
         <a href="#rollout" class="nav-link">←</a>
+        <a href="#plate-sabotage" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Plate: a beat before the mutation table
+         ================================================================ -->
+    <section class="slide slide--dark" id="plate-sabotage">
+      <div class="slide-inner">
+        <figure class="plate">
+          <img src="plates/sabotage.jpg"
+               alt="Mid-century modern technical-manual illustration: flat screen-printed shapes, fine ink linework, subtle paper grain and slight ink misregistration. Restricted palette of warm off-white, deep charcoal, one acid-lime accent and one hot-pink accent, on a near-black charcoal background. Calm, dry, faintly witty. No text, no lettering, no numbers, no logos. Wide 16:9 composition with generous empty space. Subject: a figure in a lab coat, seen from behind and entirely unhurried, using long tweezers to lift one small component out of an intricate brass machine on a workbench. Five instruments on tripods stand in a semicircle facing the machine; two of them have a small lamp glowing on top and three are dark.">
+          <figcaption>Nobody trusts an alarm they have not set off on purpose.</figcaption>
+        </figure>
+
+        <p class="speaker-notes">
+          Breather, and the setup for the table: the lit lamps are the gates that noticed.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#pixels" class="nav-link">←</a>
         <a href="#mutations" class="nav-link">→</a>
       </nav>
     </section>
@@ -677,7 +755,7 @@ bin/ssr-migration/verify aria settings-overview  # just one</code></pre>
       </div>
 
       <nav class="slide-nav">
-        <a href="#pixels" class="nav-link">←</a>
+        <a href="#plate-sabotage" class="nav-link">←</a>
         <a href="#lesson" class="nav-link">→</a>
       </nav>
     </section>
@@ -717,9 +795,27 @@ bin/ssr-migration/verify aria settings-overview  # just one</code></pre>
 
         <p class="speaker-notes">
           Be careful with the conformance row — I'm not saying delete it. Not one of the nine planted bugs changed
-          what a control <em>does</em> when you press it, and that's the only thing conformance is for. The honest
-          reading is that the mutation set under-samples behaviour, so conformance is the one gate still resting on
-          an argument rather than a measurement. That's a to-do, not a verdict.
+          what a control <em>does</em> when you press it, and that's the only thing conformance is for. It's the one
+          gate still resting on an argument rather than a measurement. A to-do, not a verdict.
+          <br><br>
+          If asked <em>what does conformance uniquely see?</em> — three things: a second state after a click, a
+          redirect, and a write. This page has one of each. The click is covered: pick a checklist step, the panel
+          swaps, and the aria gate can never see that because it captures the tree once. The redirect is covered: a
+          recruiter with no settings permission lands on the dashboard, which is the one behaviour a migration can
+          lose without changing a pixel. The write is <strong>not</strong> covered, deliberately — the interaction
+          baseline lists all five checklist checkboxes as <code>not_clicked</code>, reason: <em>“writes the step's
+          progress, which reorders the checklist and survives re-arrival.”</em> The instrument found the only form on
+          the page and refused to press it, because a gate that mutates state can't be re-run.
+          <br><br>
+          So nothing here proves “posted the form, the change persisted, both sides agree” — and that's a boundary,
+          not an oversight. The sweep refuses any control that writes, and hands what those controls <em>do</em> to
+          the conformance spec, which covers it only if a person writes the example. On this page they wrote the
+          panel swap and not the persistence.
+          <br><br>
+          The bar we deliberately don't aim at is a harness that deterministically specifies the whole application.
+          No migration harness clears it, and aiming at it is how the harness quietly becomes the project. So the
+          lever isn't more gates — it's the skill that writes conformance specs, and accepting that what's left is
+          opt-in on purpose.
           <br><br>
           This generalises well past this project. Anything whose job is to catch problems — a linter, a test suite,
           a review checklist — accumulates checks that were each individually justified and never jointly measured.
@@ -791,6 +887,28 @@ bin/ssr-migration/verify aria settings-overview  # just one</code></pre>
 
       <nav class="slide-nav">
         <a href="#chapter-scale" class="nav-link">←</a>
+        <a href="#plate-model" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Plate: a beat before the golden tenant
+         ================================================================ -->
+    <section class="slide slide--dark" id="plate-model">
+      <div class="slide-inner">
+        <figure class="plate">
+          <img src="plates/model.jpg"
+               alt="Mid-century modern technical-manual illustration: flat screen-printed shapes, fine ink linework, subtle paper grain and slight ink misregistration. Restricted palette of warm off-white, deep charcoal, one acid-lime accent and one hot-pink accent, on a near-black charcoal background. Calm, dry, faintly witty. No text, no lettering, no numbers, no logos. Wide 16:9 composition with generous empty space. Subject: an architect's hand-built cardboard model of a small office building on a workbench, open at the front like a dolls' house. A pair of hands places one tiny figure at one tiny desk with tweezers. Exactly one room is furnished and lit warmly from within; every other room is bare unpainted cardboard. Offcuts, a steel rule and a scalpel lie beside the model.">
+          <figcaption>A gate can only see a difference the data makes visible — so the data is built by hand.</figcaption>
+        </figure>
+
+        <p class="speaker-notes">
+          Breather. One room furnished, the rest bare: that is the golden tenant exactly.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#layers" class="nav-link">←</a>
         <a href="#golden-tenant" class="nav-link">→</a>
       </nav>
     </section>
@@ -803,9 +921,9 @@ bin/ssr-migration/verify aria settings-overview  # just one</code></pre>
         <h2 class="slide-title">Everything is measured against one company</h2>
 
         <p class="slide-text">
-          Both implementations are pointed at a <strong>golden tenant</strong> — a hand-curated company, planted
-          through the app's own creation paths rather than poked into the database. Which sets the hard limit on
-          all of this: <strong>a gate can only see a difference the tenant's data makes visible.</strong>
+          Both implementations are pointed at a <strong>golden tenant</strong> — a hand-curated company.
+          Which sets the hard limit on all of this: <strong>a gate can only see a difference the tenant's
+          data makes visible.</strong>
         </p>
 
         <div class="code-container">
@@ -841,7 +959,7 @@ The golden tenant is in none of those five situations.
       </div>
 
       <nav class="slide-nav">
-        <a href="#layers" class="nav-link">←</a>
+        <a href="#plate-model" class="nav-link">←</a>
         <a href="#blind-spots" class="nav-link">→</a>
       </nav>
     </section>
@@ -853,12 +971,9 @@ The golden tenant is in none of those five situations.
       <div class="slide-inner">
         <h2 class="slide-title">What it cannot see</h2>
 
-        <p class="slide-text">
-          The tenant's gaps are one limit. Here are the other three, written down as prominently as the
-          capabilities.
-        </p>
-
         <ul class="takeaways" style="margin-top: var(--space-md);">
+          <li><strong>Data is built by hand.</strong> The harness renders the page with the data we setup.
+            Data perumations no one thought of are a blind spot.</li>
           <li><strong>Baselines are per machine.</strong> A page doesn't render identically on Mac and Linux, which
             is why baselines are captured inside a shared image — and why the harness refuses to compare across
             platforms rather than showing you a diff of two operating systems.</li>
@@ -879,6 +994,28 @@ The golden tenant is in none of those five situations.
 
       <nav class="slide-nav">
         <a href="#golden-tenant" class="nav-link">←</a>
+        <a href="#plate-first-stone" class="nav-link">→</a>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         Plate: a beat before the numbers
+         ================================================================ -->
+    <section class="slide slide--dark" id="plate-first-stone">
+      <div class="slide-inner">
+        <figure class="plate">
+          <img src="plates/first-stone.jpg"
+               alt="Mid-century modern technical-manual illustration: flat screen-printed shapes, fine ink linework, subtle paper grain and slight ink misregistration. Restricted palette of warm off-white, deep charcoal, one acid-lime accent and one hot-pink accent, on a near-black charcoal background. Calm, dry, faintly witty. No text, no lettering, no numbers, no logos. Wide 16:9 composition with generous empty space. Subject: an enormous empty plain stretching to a flat horizon. In the near foreground one single paving stone has been laid, perfectly level and precisely cut, glowing faint acid-lime. Beside it stands a vast, elaborate, brand-new road-laying machine many times the size of the stone. One small figure stands between the two, looking out at the plain.">
+          <figcaption>One stone laid. Most of the week went into the machine that lays them.</figcaption>
+        </figure>
+
+        <p class="speaker-notes">
+          Breather, and the honest framing for the numbers on the next slide.
+        </p>
+      </div>
+
+      <nav class="slide-nav">
+        <a href="#blind-spots" class="nav-link">←</a>
         <a href="#where-we-are" class="nav-link">→</a>
       </nav>
     </section>
@@ -897,6 +1034,7 @@ The golden tenant is in none of those five situations.
           <span><span class="stat-value">4</span><span class="stat-label">gates</span></span>
           <span><span class="stat-value">2</span><span class="stat-label">instruments</span></span>
           <span><span class="stat-value">91</span><span class="stat-label">decisions</span></span>
+          <span><span class="stat-value">0</span><span class="stat-label">code reviewed</span></span>
         </div>
 
         <div class="comparison" style="max-width: 780px; margin: 0 auto;">
@@ -913,8 +1051,7 @@ The golden tenant is in none of those five situations.
         </div>
 
         <p class="slide-text" style="margin-top: var(--space-lg);">
-          Five times more machinery than the migrated page — and that ratio is the entire bet. It's paid once; the next
-          page pays for a manifest, a spec and a template.
+          Five times more machinery than the migrated page — by design.
         </p>
 
         <p class="speaker-notes">
@@ -924,7 +1061,7 @@ The golden tenant is in none of those five situations.
       </div>
 
       <nav class="slide-nav">
-        <a href="#blind-spots" class="nav-link">←</a>
+        <a href="#plate-first-stone" class="nav-link">←</a>
         <a href="#questions" class="nav-link">→</a>
       </nav>
     </section>

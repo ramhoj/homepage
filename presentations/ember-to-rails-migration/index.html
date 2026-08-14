@@ -352,7 +352,8 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
         <a href="#aria-report" class="nav-link">→</a>
       </nav>
     </section>
-
+    <!-- Not to agent: Slide 7 was about aria varifier, this slide should be about the layout verifier, not more details on the aria one.
+    Please we-write it. -->
     <!-- ================================================================
          Slide 8: What a failure reads like
          ================================================================ -->
@@ -403,7 +404,7 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
          ================================================================ -->
     <section class="slide slide--dark" id="page">
       <div class="slide-inner">
-        <h2 class="slide-title">One page, migrated</h2>
+        <h2 class="slide-title">Perfect before the first human review</h2>
 
         <figure class="demo-frame">
           <div class="demo-frame__chrome">
@@ -416,9 +417,11 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
                alt="The migrated settings overview page rendered by Rails, showing the Settings guide heading, a getting-started checklist and shortcut cards">
         </figure>
 
+        <!-- Note to agent: Let's make a separate slide about the rollout schema, url params and flipper flags. It's important -->
         <p class="demo-caption">
-          Server-rendered Rails, behind a Flipper flag. The same URL still answers with Ember for everyone else —
-          <strong>an <code>impl</code> query parameter</strong> lets staff open both side by side.
+          <!--Server-rendered Rails, behind a Flipper flag. The same URL still answers with Ember for everyone else —
+          <strong>an <code>impl</code> query parameter</strong> lets staff open both side by side.-->
+          Not even comparable to first whack-a-mole spike where tens, if not hundreds, of small rendering issues took forever to resolve 🤩!
         </p>
 
         <p class="speaker-notes">
@@ -437,6 +440,9 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
       </nav>
     </section>
 
+    <!-- Note to agent: This doesn't communicate much to the audience, it's lacking context. I think we should merge it with the next and
+      lead with something like "attribution is almost as important as detecton". The slide goal should be to show that we do pixel compare,
+      why it matters and how we made it excell with attibutions derived from the layout pass (it is, right?) -->
     <!-- ================================================================
          Slide 10: The pixels
          ================================================================ -->
@@ -497,6 +503,7 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
                alt="The migrated page with a small ring drawn by the harness around the single word whose pixels diverged">
         </figure>
 
+        <!-- Note to agent: It's a rectangle, not a round ring -->
         <p class="demo-caption">
           The instrument clusters differing pixels into regions and draws a ring round each one, on the page itself.
           <strong>One ring, round one letter.</strong>
@@ -517,6 +524,8 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
       </nav>
     </section>
 
+    <!-- Note to agent: I know that this was a lot of effort to fix but to an uninitiated audience who didn' have to go through that
+    it's a footnoot at best, never it's own slide -->
     <!-- ================================================================
          Slide 12: The camera that lied
          ================================================================ -->
@@ -563,6 +572,9 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
       <div class="slide-inner">
         <h2 class="slide-title">So we broke it nine ways on purpose</h2>
 
+        <!-- Not to agent: "because a stack that stops at the first failure". What do we mean by that? I think an earlier slide
+        says that we do stop on the first failure so runs are cheap. Which one is it? Or are you refering to a special setup you
+        made when planting failures that isn't replicated default harness mode? -->
         <p class="slide-text" style="font-size: 1rem;">
           One regression at a time in the migrated Rails, every gate run <em>alone</em> against each — because a
           stack that stops at the first failure can't tell you which of the later gates would also have caught it.
@@ -592,6 +604,8 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
           </tbody>
         </table>
 
+        <!-- Note to agent: Since we're droping the "not the entire height"-slide we need to re-write this. Also I don't get
+         "This is the mutation that found it" on the gate that we've labled as "missed", missed is "not found it" -->
         <p class="slide-text" style="font-size: 0.85rem; color: var(--tt-grey-31); margin-top: var(--space-sm);">
           * green only because of the fold defect on the previous slide. This is the mutation that found it.
         </p>
@@ -615,6 +629,11 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
       </nav>
     </section>
 
+    <!-- Note to agent: This one feels quite abstract and I'm not sure I get it.
+    How does "Could catch" contrast "did catch that the others missed"?
+    What is it we're really saying here and how is it relevant? Something returned
+    false greens? It's not clear at all.
+    -->
     <!-- ================================================================
          Slide 14: The general lesson
          ================================================================ -->
@@ -656,6 +675,10 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
     <section class="slide slide--accent" id="chapter-scale">
       <div class="slide-inner">
         <p class="chapter-label">Chapter 3</p>
+        <!-- Note to agent: Is 50 pages an estimate we have from the app? Sounds low?
+        Also, I think this will be confused with the harness (we're not writing that
+        50 times either) but this is about our how we cut up pages. We need a title
+        that comminicates that. -->
         <h2 class="slide-title slide-title--large">Not doing this fifty times</h2>
         <p class="slide-subtitle">Primitives, surfaces, pages</p>
       </div>
@@ -674,11 +697,11 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
         <h2 class="slide-title">Three things get migrated, on three schedules</h2>
 
         <ul class="takeaways">
-          <li><strong>Primitives</strong> — buttons, badges, dropdowns. View-only, no domain logic, every class
+          <li><strong>Primitives</strong> — buttons, badges, dropdowns. View-only, <em>no domain logic</em>, every class
             string from one source per primitive so the same button can't be re-derived on fifty pages. Parity-tested
-            against the Ember original for <em>every variant the application actually uses</em>.</li>
+            against the Ember original for <em>every variant the a page actually uses</em>.</li>
           <li><strong>Surfaces</strong> — shared chrome. The global banner and a section's sidebar. Peers of pages
-            rather than a special case: a manifest, baselines, gates — just no URL and no flag. Each page's baseline
+            rather than a special case. Each page's baseline
             <em>excludes</em> the surfaces it renders, so a surface is measured in one place instead of in every page
             that shows it.</li>
           <li><strong>Pages</strong> — a manifest, a conformance spec pinned green against Ember, two baselines, a
@@ -707,6 +730,8 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
       </nav>
     </section>
 
+    <!-- Note to agent: For people outside the project they won't understand the struggle here and will
+      shrug: "Okay I don't get this, you hit some dead ends, so what?". I think we should drop this slide.
     <!-- ================================================================
          Slide 17: Backtracks
          ================================================================ -->
@@ -746,6 +771,8 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
       </nav>
     </section>
 
+    <!-- Note to agent: We're basically introducing the golden tennant here, I think it needs a short introduction.
+   Maybe it's own slide and a nice image -->
     <!-- ================================================================
          Slide 18: What it cannot see
          ================================================================ -->
@@ -753,23 +780,18 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
       <div class="slide-inner">
         <h2 class="slide-title">What it cannot see</h2>
 
-        <div class="quote">
-          <p class="quote-text">A fixture can only make visible a difference that the data determines.</p>
-        </div>
-
         <p class="slide-text">
           Pages are measured against a golden tenant planted through the app's own paths. Anything that tenant can't
           produce — an unread badge that needs real activity behind it — is a branch no gate ever visits.
         </p>
 
         <ul class="takeaways" style="margin-top: var(--space-md);">
-          <li><strong>Baselines are machine-bound.</strong> The platform shapes the text and the product branches on
-            it, so the gates <em>refuse</em> rather than compare: <em>“This baseline was captured on linux, and this
-            is darwin.”</em></li>
-          <li><strong>The gates prove sameness, not quality.</strong> Nothing here has an opinion about whether the
-            Rails is any good. That's still review.</li>
-          <li><strong>The mutation set under-samples behaviour.</strong> Every planted bug damaged rendering. The
-            next page should plant one that changes what a control does.</li>
+          <li><strong>Baselines are per machine.</strong> Pages doesn't render identically on Mac and Linux which is
+            why baseline snapshots are taken inside a shared image.</li>
+          <li><strong>Rails code quality isn't gated.</strong> I'd like to put up a lot more coding guardrails
+            next but a green result won't mean we can merge it without senior human review.</li>
+          <li><strong>Behviour needs listing</strong> While renders are compared autimatically, we still
+            rely on conformance spec to gate actions taken.</li>
         </ul>
 
         <p class="speaker-notes">
@@ -798,7 +820,7 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
           <span><span class="stat-value">1</span><span class="stat-label">page</span></span>
           <span><span class="stat-value">2</span><span class="stat-label">surfaces</span></span>
           <span><span class="stat-value">7</span><span class="stat-label">primitives</span></span>
-          <span><span class="stat-value">6</span><span class="stat-label">stages</span></span>
+          <span><span class="stat-value">6</span><span class="stat-label">stages</span></span><!-- Note to agent: What are stages? -->
           <span><span class="stat-value">90</span><span class="stat-label">decisions</span></span>
         </div>
 

@@ -39,10 +39,14 @@
       font-size: 0.7rem;
     }
 
-    .grid-table td.verdict { text-align: center; font-weight: 600; }
-    .grid-table td.caught { color: var(--tt-lime); }
-    .grid-table td.missed { color: #ea8d98; }
-    .grid-table td.na { color: var(--tt-grey-64); }
+    .grid-table td.verdict { text-align: center; }
+    /* Not scoped to td: the verdict words are also set inline in running text. */
+    .grid-table .caught { color: var(--tt-lime); font-weight: 600; }
+    .grid-table .missed { color: #ea8d98; font-weight: 600; }
+    .grid-table .na { color: var(--tt-grey-64); font-weight: 600; }
+    /* Not "missed" — the gate returned green over input it never looked at,
+       which is a different and worse thing than looking and not seeing. */
+    .grid-table .false-green { color: #e0a955; font-weight: 600; }
     .grid-table tbody tr:hover { background: rgba(255, 255, 255, 0.04); }
 
     .three-up {
@@ -69,6 +73,43 @@
       margin-top: var(--space-sm);
       font-size: 0.85rem;
       color: var(--tt-grey-31);
+    }
+
+    /* Where the difference is, beside what the difference is. */
+    .attribution-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-lg);
+      align-items: start;
+      width: 100%;
+      max-width: 1000px;
+      margin: var(--space-md) auto 0;
+    }
+
+    .attribution-grid .demo-frame { margin: 0; }
+
+    /* The crops stay in a row. They are near-square, so stacking three of them
+       in a half-width column is 1300px of slide that does not exist. */
+    .attribution-grid .three-up {
+      gap: var(--space-sm);
+      margin: 0;
+    }
+
+    /* A supporting picture rather than a screenshot of the product, so it gets a
+       plain frame instead of the browser chrome — and a height cap, so whatever
+       follows it still fits on the slide. */
+    .inline-figure {
+      margin: var(--space-md) auto;
+      max-width: 440px;
+    }
+
+    .inline-figure img {
+      display: block;
+      width: 100%;
+      max-height: 32vh;
+      object-fit: contain;
+      border-radius: 8px;
+      border: 1px solid var(--tt-grey-64);
     }
 
     .stat-row {
@@ -109,9 +150,9 @@
         <p class="slide-subtitle">A deterministic harness for moving a page from Ember to Rails — and how we got there</p>
 
         <p class="speaker-notes">
-          This inovation week I was intressted in exploring what it would take to migrate an Ember SPA "page" to a Rails SSR page.
-          I want to share some of the process and the harness I got after a week spent together with Claude. One page got ported,
-          but that's the least intressting part.
+          This innovation week I was interested in exploring what it would take to migrate an Ember SPA "page" to a Rails SSR page.
+          I want to share some of the process and the harness I got after a week spent together with Claude. One page got migrated,
+          but that's the least interesting part.
         </p>
       </div>
 
@@ -129,12 +170,14 @@
         <h2 class="slide-title">Rewriting is easier than verifying</h2>
 
         <p class="slide-text">
-          I ran a similar experiment once before and it was a compleate whack-a-mole. While I got to 90% of a page port
-          quite quickly, the last 10% was a mess, and it come down to verifibility.
+          I ran a similar experiment once before and it was a complete whack-a-mole. I got to 90% of a page quickly,
+          and then the last 10% was a mess — because I had no way to tell what was still different.
         </p>
 
-        <!-- Note to agent: THis needs framing, and rendered noticably smaller so that the quote fits the page too -->
-        <img class="demo-frame__shot" src="frames/whack-a-mole.png" alt="Whak-a-mole">
+        <figure class="inline-figure">
+          <img src="frames/whack-a-mole.jpg"
+               alt="A whack-a-mole arcade cabinet: every mole pushed down brings another one up">
+        </figure>
 
         <div class="quote">
           <p class="quote-text">Ember is the specification, and sameness is measured rather than reviewed.</p>
@@ -143,7 +186,7 @@
         <p class="speaker-notes">
           The reason for the "even where Rails is better" rule: a migration that also improves things is a migration
           whose failures cannot be localised. When something looks wrong, you want exactly one explanation available
-          — "the port is wrong" — not two.
+          — "the migration is wrong" — not two.
           <br><br>
           Improvements happen. They happen deliberately, afterwards, as their own change, with a record of what was
           found. Every accessibility finding we hit got written into the manifest rather than fixed on the spot.
@@ -165,8 +208,8 @@
         <h2 class="slide-title">We wrote a plan, without perfecting it</h2>
 
         <p class="slide-text">
-          Turns out, comparing real application pages isn't trivial. In a day we got to a <em>plausible</em> plan but
-          at over 8,000 lines I refused reviwing any more iterations. <strong>The best decision this week came
+          Turns out, comparing real application pages isn't trivial. In a day we got to a <em>plausible</em> plan, but
+          at over 8,000 lines I refused to review any more iterations of it. <strong>The best decision this week came
           from being lazy.</strong>
         </p>
 
@@ -176,8 +219,8 @@
         </div>
 
         <p class="slide-text">
-          Building the wrong thing can be expsneive but so can planing something that can't be built. I moved on to
-          proving an imperfect plan.
+          Building the wrong thing is expensive, but so is planning something that can't be built. I moved on to
+          proving an imperfect plan instead.
         </p>
 
         <p class="speaker-notes">
@@ -185,7 +228,7 @@
           code can't carry, and it's the reason a second person can pick this up. But it was still too much, and we
           only found that out by building.
           <br><br>
-          There are 90 decisions in the log now. Each one is a crossroads with the reasoning attached, including the
+          There are 91 decisions in the log now. Each one is a crossroads with the reasoning attached, including the
           ones where the reasoning turned out to be wrong.
         </p>
       </div>
@@ -201,13 +244,13 @@
          ================================================================ -->
     <section class="slide slide--dark" id="preconditions">
       <div class="slide-inner">
-        <h2 class="slide-title">I worked in a parallel to a three day continous Claude session.</h2>
+        <h2 class="slide-title">I worked in parallel with a three-day continuous Claude session</h2>
 
         <div class="comparison">
           <div class="comparison-side">
             <p class="chapter-label" style="margin-bottom: var(--space-sm);">What the plan was</p>
             <h3>Five comparison algorithms</h3>
-            <p>Diff the trees. Diff the styles. Diff the pixels.
+            <p>Diff the trees. Diff the styles. Diff the pixels.</p>
           </div>
 
           <div class="comparison-side">
@@ -222,10 +265,9 @@
           <p class="quote-text">The comparators turned out to be the easy part.</p>
         </div>
 
-        <!-- Note to agent: These numbers needs to be updated, we have 91 recorded decisions -->
         <p class="slide-text">
-          Of the first 33 decisions, five were about <em>how to compare</em>. Fourteen were about
-          <em>whether the thing measured is the thing meant</em>.
+          Ninety-one decisions are on the record. Eight of them are about <em>how to compare</em>.
+          Thirty-two are about <em>whether the thing measured is the thing meant</em>.
         </p>
 
         <p class="speaker-notes">
@@ -236,6 +278,10 @@
           It was still wrong. It was the noise floor of <em>that capture design</em> — two browser contexts,
           photographed separately. Photograph both implementations from the same context in the same session and the
           measured floor is zero. Two months of tuning the comparator, and the problem was in the precondition.
+          <br><br>
+          If asked how the eight and the thirty-two are counted: by hand, and it's a judgement call at the
+          margins — two or three could go either way. The ratio isn't. It was 5 against 14 in the first
+          third of the log and 8 against 32 by the end, so the gap widened as the harness got more real.
         </p>
       </div>
 
@@ -269,8 +315,8 @@
         <h2 class="slide-title">Six stages, and the split that matters</h2>
 
         <div class="code-container">
-          <pre class="code-block"><code class="language-bash">bin/ssr/verify all settings-overview   # every stage, stopping at the first failure
-bin/ssr/verify aria settings-overview  # just one</code></pre>
+          <pre class="code-block"><code class="language-bash">bin/ssr-migration/verify all settings-overview   # every stage, stopping at the first failure
+bin/ssr-migration/verify aria settings-overview  # just one</code></pre>
         </div>
 
         <table class="grid-table">
@@ -315,9 +361,9 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
         <h2 class="slide-title">The accessibility tree as the diffable artefact</h2>
 
         <p class="slide-text">
-          My first idea was a perfect DOM diff but replicating Ember's markup exactly is both fragile forces us
-          to carry over every blemish and worse — set us up for a 1:1 port rather than a true idomatic migraiton that
-          that is maintainable.
+          My first idea was a perfect DOM diff. But requiring identical markup is fragile, forces us to carry over
+          every blemish, and — worse — sets us up for a transliteration rather than idiomatic Rails anyone would
+          want to maintain.
         </p>
 
         <div class="code-container">
@@ -333,8 +379,8 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
         </div>
 
         <p class="slide-text" style="margin-top: var(--space-md);">
-          Playwright ships with <code>aria_snapshot</code> which we can use to determine the content of a page,
-          without loosing non-visiual accessibility content. It's fast and gives us the implementation freedom we need.
+          Playwright ships with <code>aria_snapshot</code>, which gives us the content of a page without losing what
+          only a screen reader would hear. It's fast, and it leaves us the implementation freedom we need.
         </p>
 
         <p class="speaker-notes">
@@ -349,47 +395,52 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
 
       <nav class="slide-nav">
         <a href="#stack" class="nav-link">←</a>
-        <a href="#aria-report" class="nav-link">→</a>
+        <a href="#layout" class="nav-link">→</a>
       </nav>
     </section>
-    <!-- Not to agent: Slide 7 was about aria varifier, this slide should be about the layout verifier, not more details on the aria one.
-    Please we-write it. -->
     <!-- ================================================================
-         Slide 8: What a failure reads like
+         Slide 8: The layout gate
          ================================================================ -->
-    <section class="slide slide--dark" id="aria-report">
+    <section class="slide slide--dark" id="layout">
       <div class="slide-inner">
-        <h2 class="slide-title">A failure has to name the fix</h2>
-
-        <div class="code-container">
-          <span class="code-filename">bin/ssr/verify aria settings-overview</span>
-          <pre class="code-block"><code class="language-diff">  in button "Set up departments and roles"
-    - button "Set up departments and roles"
-    + button
-      ↳ no accessible name in Rails -- an icon-only control needs an
-        aria-label, or text only a screen reader reads</code></pre>
-        </div>
+        <h2 class="slide-title">Matching two DOMs that are allowed to differ</h2>
 
         <p class="slide-text">
-          <code>-</code> gone, <code>+</code> arrived, <code>~</code> the same node said differently about. Grouped
-          by the region it's in, so a reordered item reads as itself rather than as an anonymous box.
+          The layout gate compares every computed style and every rect. But it can't walk the two trees in step —
+          not requiring identical markup was the whole point. So it <strong>matches by identity</strong>: role,
+          accessible name, text, at several strengths.
         </p>
 
         <p class="slide-text">
-          The layout gate does the same job for appearance, and adds one rule:
-          <strong>report the outermost divergence and stop.</strong> One wrong container moves everything inside it,
-          and a list of forty consequences is a worse report than the one cause.
+          Then it reports how many elements it could only match <em>by appearance</em>. On this page, 39. That
+          number is the gate auditing itself — if it climbs, more of the verdict is resting on resemblance.
+        </p>
+
+        <div class="code-container">
+          <span class="code-filename">bin/ssr-migration/verify layout settings-overview</span>
+          <pre class="code-block"><code class="language-diff">link "Configure departments and roles →"
+  x                      left=722.09  right=722.08</code></pre>
+        </div>
+
+        <p class="demo-caption">
+          The entire remaining difference between the two implementations, at zero tolerance.
         </p>
 
         <p class="speaker-notes">
-          This is the part that actually saves the hours. An agent — or a person — reading "no accessible name in
-          Rails, an icon-only control needs an aria-label" goes and fixes it. Reading "trees differ" goes and stares
-          at two thousand lines of YAML.
+          Two rules keep the report readable. A property divergence is named at the <strong>outermost</strong>
+          element it starts from; geometry is reported at its frontier and counted below it — "and 14 elements
+          inside those". One wrong container moves everything inside it, and a list of forty consequences is a
+          worse report than the one cause.
           <br><br>
-          Matching elements across the two implementations is its own problem, because we deliberately don't require
-          the same markup. The layout gate matches by identity — role, accessible name, text — at several strengths,
-          and reports how many it could only match by appearance rather than identity. That number is a warning sign
-          on its own.
+          And every finding carries a hint at what to go and read: a colour divergence says "check the theme
+          contract before hard-coding one", spacing says "a padding scale step, not an arbitrary value". That's
+          the part that saves the hours. Someone reading a named fix goes and fixes it; someone reading "trees
+          differ" goes and stares at two thousand lines of YAML.
+          <br><br>
+          On the code block: that really is the last one. 0.01 is the smallest number the sweep can record — it
+          rounds rects to two decimals — so this is a value landing either side of a rounding boundary, and the
+          rasteriser has to pick a whole pixel column. I found it with the pixel instrument and localised it with
+          this gate at zero tolerance. No waiver. It stays on the report.
         </p>
       </div>
 
@@ -417,101 +468,141 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
                alt="The migrated settings overview page rendered by Rails, showing the Settings guide heading, a getting-started checklist and shortcut cards">
         </figure>
 
-        <!-- Note to agent: Let's make a separate slide about the rollout schema, url params and flipper flags. It's important -->
         <p class="demo-caption">
-          <!--Server-rendered Rails, behind a Flipper flag. The same URL still answers with Ember for everyone else —
-          <strong>an <code>impl</code> query parameter</strong> lets staff open both side by side.-->
-          Not even comparable to first whack-a-mole spike where tens, if not hundreds, of small rendering issues took forever to resolve 🤩!
+          Not even comparable to the first whack-a-mole spike where tens, if not hundreds, of small rendering issues took forever to resolve 🤩!
         </p>
 
         <p class="speaker-notes">
-          One URL, two implementations, a server-side decision. That's what makes any of the comparison possible:
-          the harness points the same browser at the same address twice.
+          Worth saying out loud: no human had reviewed this when the gates went green. The first review comment on
+          the page was about naming, not about rendering.
           <br><br>
-          Every rendered document carries an implementation stamp, and every verifier asserts it on arrival. That's
-          not a debugging convenience — it prevents the failure that silently invalidates everything, which is a flag
-          that didn't take effect and Ember being compared against itself.
+          Everything on the previous four slides is what made that possible — and none of it is possible unless the
+          same URL can answer with either implementation. Which is the next slide.
         </p>
       </div>
 
       <nav class="slide-nav">
-        <a href="#aria-report" class="nav-link">←</a>
-        <a href="#pixels" class="nav-link">→</a>
+        <a href="#layout" class="nav-link">←</a>
+        <a href="#rollout" class="nav-link">→</a>
       </nav>
     </section>
 
-    <!-- Note to agent: This doesn't communicate much to the audience, it's lacking context. I think we should merge it with the next and
-      lead with something like "attribution is almost as important as detecton". The slide goal should be to show that we do pixel compare,
-      why it matters and how we made it excell with attibutions derived from the layout pass (it is, right?) -->
     <!-- ================================================================
-         Slide 10: The pixels
+         Slide 10: One URL, two implementations
          ================================================================ -->
-    <section class="slide slide--dark" id="pixels">
+    <section class="slide slide--dark" id="rollout">
       <div class="slide-inner">
-        <h2 class="slide-title">36 pixels out of 2,077,744</h2>
+        <h2 class="slide-title">One URL, two implementations</h2>
 
-        <div class="three-up">
-          <figure>
-            <img src="frames/pixel-ember.png" alt="Magnified crop of the word Configure as rendered by Ember">
-            <figcaption>Ember</figcaption>
-          </figure>
-          <figure>
-            <img src="frames/pixel-rails.png" alt="Magnified crop of the same word as rendered by Rails, visually indistinguishable">
-            <figcaption>Rails</figcaption>
-          </figure>
-          <figure>
-            <img src="frames/pixel-diff.png" alt="The same crop with the differing pixels filled in green, covering one letter">
-            <figcaption>The difference</figcaption>
-          </figure>
+        <div class="code-container">
+          <span class="code-filename">config/routes.rb — above the Ember catch-all, or it never wins</span>
+          <pre class="code-block"><code class="language-ruby">migrated "/settings/overview",
+  to: "/settings/overviews#show",
+  ember_route: "settings.overview",   # ⇒ flag :ssr_settings_overview
+  as: :settings_overview</code></pre>
         </div>
 
-        <p class="demo-caption">
-          Magnified 14×. One letter, one sub-pixel of antialiasing, in
-          <strong>“Configu<span style="color: var(--tt-lime)">r</span>e departments and roles”</strong>.
+        <p class="slide-text">
+          It's a <strong>routing constraint</strong>, not a redirect. The flag says no and the router falls
+          through to the SPA, which serves the page byte for byte as it does today. The flag name is derived from
+          the Ember route, so it can't drift.
+        </p>
+
+        <table class="grid-table">
+          <tbody>
+            <tr><td><code>?impl=rails</code></td><td>Open either implementation on demand. Everyone in dev and
+              preview; staff only in production, so a customer can't pin themselves to one that's about to be
+              deleted.</td></tr>
+            <tr><td><code>data-implementation</code></td><td>Every document says which one rendered it. Every
+              verifier asserts it <em>on arrival</em>.</td></tr>
+            <tr><td><code>Cache-Control</code></td><td><code>private, no-cache, must-revalidate</code>. One URL,
+              two possible answers — no shared cache may ever hold it.</td></tr>
+          </tbody>
+        </table>
+
+        <p class="slide-text" style="margin-top: var(--space-md); font-size: 0.95rem;">
+          A page moves through four states: <code>surveyed</code> → <code>spec-green-on-ember</code> →
+          <code>migrated</code> → <code>rolled-out</code>.
         </p>
 
         <p class="speaker-notes">
-          Two million pixels. Thirty-six of them differ, and they're all in one glyph. Left and right on this slide
-          are the actual crops — I genuinely cannot tell them apart, and neither can anyone else.
+          The stamp is the one I'd defend hardest. It isn't a debugging convenience — it prevents the failure that
+          silently invalidates everything, which is a flag that didn't take effect and Ember being compared against
+          itself. Every gate would go green. The comparison would mean nothing. So every verifier checks the stamp
+          before it looks at anything else.
           <br><br>
-          This is exactly why the photo is an instrument and not a gate. If this failed the build, the only rational
-          response would be to add a threshold, and once there's a threshold there's a number someone tunes.
+          Neither implementation stamps itself, by the way — a middleware does it for both. The migrated page must
+          not know it has been migrated, and the SPA shell is a built artefact with no Rails template at all.
+          <br><br>
+          On the four states: the important one is the second. <code>spec-green-on-ember</code> is the pin — a
+          behaviour spec written against Ember and passing against Ember, committed <em>before</em> any Rails
+          exists. That's what stops the specification quietly becoming "whatever the Rails does".
         </p>
       </div>
 
       <nav class="slide-nav">
         <a href="#page" class="nav-link">←</a>
-        <a href="#regions" class="nav-link">→</a>
+        <a href="#pixels" class="nav-link">→</a>
       </nav>
     </section>
 
     <!-- ================================================================
-         Slide 11: The instrument names the region
+         Slide 10: The photo instrument — attribution, not detection
          ================================================================ -->
-    <section class="slide slide--dark" id="regions">
+    <section class="slide slide--dark" id="pixels">
       <div class="slide-inner">
         <h2 class="slide-title">Its job is attribution, not detection</h2>
 
-        <figure class="demo-frame">
-          <div class="demo-frame__chrome">
-            <span class="demo-frame__dot"></span>
-            <span class="demo-frame__dot"></span>
-            <span class="demo-frame__dot"></span>
-            <span class="demo-frame__url">tmp/ssr-migration/photo/settings-overview/default/regions.png</span>
-          </div>
-          <img class="demo-frame__shot" src="frames/photo-regions.png"
-               alt="The migrated page with a small ring drawn by the harness around the single word whose pixels diverged">
-        </figure>
+        <p class="slide-text">
+          A pixel diff can see things no other gate can. What it says on its own is useless:
+          <em>0.002% of pixels differ</em>. So the instrument clusters them into regions, boxes each one on the
+          page, and then <strong>names the element it landed on</strong> — by looking it up in the rects the
+          layout gate already measured.
+        </p>
 
-        <!-- Note to agent: It's a rectangle, not a round ring -->
+        <div class="attribution-grid">
+          <figure class="demo-frame">
+            <div class="demo-frame__chrome">
+              <span class="demo-frame__dot"></span>
+              <span class="demo-frame__dot"></span>
+              <span class="demo-frame__dot"></span>
+              <span class="demo-frame__url">tmp/ssr-migration/photo/settings-overview/default/regions.png</span>
+            </div>
+            <img class="demo-frame__shot" src="frames/photo-regions.png"
+                 alt="The migrated page with a small magenta box drawn by the harness around the single word whose pixels diverged">
+          </figure>
+
+          <div class="three-up">
+            <figure>
+              <img src="frames/pixel-ember.png" alt="Magnified crop of the word Configure as rendered by Ember">
+              <figcaption>Ember</figcaption>
+            </figure>
+            <figure>
+              <img src="frames/pixel-rails.png" alt="Magnified crop of the same word as rendered by Rails, visually indistinguishable">
+              <figcaption>Rails</figcaption>
+            </figure>
+            <figure>
+              <img src="frames/pixel-diff.png" alt="The same crop with the differing pixels filled in green, covering one letter">
+              <figcaption>The difference, magnified 14×</figcaption>
+            </figure>
+          </div>
+        </div>
+
         <p class="demo-caption">
-          The instrument clusters differing pixels into regions and draws a ring round each one, on the page itself.
-          <strong>One ring, round one letter.</strong>
+          36 pixels out of 2,077,744. One box, one letter, one sub-pixel of antialiasing, in
+          <strong>“Configu<span style="color: var(--tt-lime)">r</span>e departments and roles”</strong>.
         </p>
 
         <p class="speaker-notes">
-          The output isn't a number, it's a picture of where to look. That's the difference between "0.002% of pixels
-          differ" — which tells you nothing — and "here, this word".
+          The attribution is the whole reason this is worth building rather than opening two PNGs side by side. A
+          red box says <em>where</em> to look; the layout gate's sweep already knows <em>what</em> is there. Both
+          were measured from the same subtree root, so the two coordinate systems are one coordinate system — the
+          lookup is a scan of a few hundred rects and costs nothing.
+          <br><br>
+          Left and right on the right-hand side are the actual crops. I genuinely cannot tell them apart, and
+          neither can anyone else. Which is exactly why the photo is an instrument and not a gate: if this failed
+          the build, the only rational response would be to add a threshold, and once there's a threshold there's a
+          number someone tunes until the report goes quiet.
           <br><br>
           It also names its own contaminants. A flash message that appeared on one side and not the other used to
           read as a real divergence; now the instrument says so.
@@ -519,65 +610,22 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
       </div>
 
       <nav class="slide-nav">
-        <a href="#pixels" class="nav-link">←</a>
-        <a href="#false-green" class="nav-link">→</a>
-      </nav>
-    </section>
-
-    <!-- Note to agent: I know that this was a lot of effort to fix but to an uninitiated audience who didn' have to go through that
-    it's a footnoot at best, never it's own slide -->
-    <!-- ================================================================
-         Slide 12: The camera that lied
-         ================================================================ -->
-    <section class="slide slide--dark" id="false-green">
-      <div class="slide-inner">
-        <p class="chapter-label">The one that scared us</p>
-        <h2 class="slide-title">The camera never saw half the page</h2>
-
-        <div class="code-container">
-          <pre class="code-block"><code class="language-bash">ember 1136x1829, rails 1136x1829: identical</code></pre>
-        </div>
-
-        <p class="slide-text">
-          The same SHA256 — not merely below a threshold. Except it compared the top 900 pixels and called the other
-          929 identical: Playwright returns an image the full height of an element taller than the viewport and
-          <em>paints only the part that was inside it</em>. The blank remainder was blank on both sides, so it
-          subtracted to nothing. That green had already been quoted as evidence the migration was pixel-perfect.
-        </p>
-
-        <div class="quote">
-          <p class="quote-text">A false green over unexamined input is the most expensive defect a harness can
-            have.</p>
-        </div>
-
-        <p class="speaker-notes">
-          Half the page. Reporting identical. With a matching hash, which is the most convincing possible way to be
-          wrong.
-          <br><br>
-          And note how we found it — not by reading the code, not by review. We found it by planting a bug in the
-          bottom half of the page and watching this thing stay green.
-        </p>
-      </div>
-
-      <nav class="slide-nav">
-        <a href="#regions" class="nav-link">←</a>
+        <a href="#rollout" class="nav-link">←</a>
         <a href="#mutations" class="nav-link">→</a>
       </nav>
     </section>
 
     <!-- ================================================================
-         Slide 13: Mutation testing the gates
+         Slide 11: Mutation testing the gates
          ================================================================ -->
     <section class="slide slide--dark" id="mutations">
       <div class="slide-inner">
         <h2 class="slide-title">So we broke it nine ways on purpose</h2>
 
-        <!-- Not to agent: "because a stack that stops at the first failure". What do we mean by that? I think an earlier slide
-        says that we do stop on the first failure so runs are cheap. Which one is it? Or are you refering to a special setup you
-        made when planting failures that isn't replicated default harness mode? -->
         <p class="slide-text" style="font-size: 1rem;">
-          One regression at a time in the migrated Rails, every gate run <em>alone</em> against each — because a
-          stack that stops at the first failure can't tell you which of the later gates would also have caught it.
+          Plant one bug in the finished Rails page. Ask every gate, separately, whether it noticed. Undo it, plant
+          the next. Nine times. <em>Separately</em> matters: day to day the gates stop at the first red, because
+          that's cheap — but then you never learn which of the ones behind it would also have caught the bug.
         </p>
 
         <table class="grid-table">
@@ -597,21 +645,26 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
             <tr><td>a button rendered as a link</td><td class="verdict na">—</td><td class="verdict caught">caught</td><td class="verdict caught">caught</td><td class="verdict caught">caught</td><td class="verdict missed">missed</td></tr>
             <tr><td>the page container shifted 24px</td><td class="verdict na">—</td><td class="verdict missed">missed</td><td class="verdict missed">missed</td><td class="verdict caught">caught</td><td class="verdict caught">caught</td></tr>
             <tr><td>a text colour changed</td><td class="verdict na">—</td><td class="verdict missed">missed</td><td class="verdict missed">missed</td><td class="verdict caught">caught</td><td class="verdict caught">caught</td></tr>
-            <tr><td>a two-column section swapped end to end</td><td class="verdict na">—</td><td class="verdict missed">missed</td><td class="verdict caught">caught</td><td class="verdict caught">caught</td><td class="verdict missed">missed*</td></tr>
+            <tr><td>a two-column section swapped end to end</td><td class="verdict na">—</td><td class="verdict missed">missed</td><td class="verdict caught">caught</td><td class="verdict caught">caught</td><td class="verdict false-green">false green</td></tr>
             <tr><td>two support links deleted</td><td class="verdict na">—</td><td class="verdict caught">caught</td><td class="verdict caught">caught</td><td class="verdict caught">caught</td><td class="verdict caught">caught</td></tr>
             <tr><td><strong>a link's <code>href</code> pointed elsewhere</strong></td><td class="verdict na">—</td><td class="verdict missed">missed</td><td class="verdict caught">caught</td><td class="verdict missed">missed</td><td class="verdict missed">missed</td></tr>
             <tr><td>an N+1, a misspelled Stimulus target</td><td class="verdict caught">caught</td><td class="verdict missed">missed</td><td class="verdict na">—</td><td class="verdict na">—</td><td class="verdict na">—</td></tr>
           </tbody>
         </table>
 
-        <!-- Note to agent: Since we're droping the "not the entire height"-slide we need to re-write this. Also I don't get
-         "This is the mutation that found it" on the gate that we've labled as "missed", missed is "not found it" -->
         <p class="slide-text" style="font-size: 0.85rem; color: var(--tt-grey-31); margin-top: var(--space-sm);">
-          * green only because of the fold defect on the previous slide. This is the mutation that found it.
+          <strong style="color: #e0a955;">false green</strong> — worse than a miss. The camera reported
+          <em>identical, same hash</em> while comparing only the top half of a page twice its height. That row is
+          how we found out.
         </p>
 
         <p class="speaker-notes">
-          It found three defects in the harness in one afternoon: the fold bug, the conformance mode counting other
+          On the false green, if anyone asks: Playwright returns an image the full height of an element taller than
+          the viewport, but paints only the part that was actually inside the viewport. The blank remainder was
+          blank on both sides, so it subtracted to nothing — matching hash, half the page never looked at. That
+          green had already been quoted as evidence the migration was pixel-perfect.
+          <br><br>
+          It found three defects in the harness in one afternoon: that one, the conformance mode counting other
           gates' examples as its own verdict, and a number the layout gate had always computed and never printed.
           <br><br>
           And it settled what each gate is actually for. Row 8 is the argument for the aria gate — one gate, alone.
@@ -624,42 +677,54 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
       </div>
 
       <nav class="slide-nav">
-        <a href="#false-green" class="nav-link">←</a>
+        <a href="#pixels" class="nav-link">←</a>
         <a href="#lesson" class="nav-link">→</a>
       </nav>
     </section>
 
-    <!-- Note to agent: This one feels quite abstract and I'm not sure I get it.
-    How does "Could catch" contrast "did catch that the others missed"?
-    What is it we're really saying here and how is it relevant? Something returned
-    false greens? It's not clear at all.
-    -->
     <!-- ================================================================
-         Slide 14: The general lesson
+         Slide 12: The general lesson
          ================================================================ -->
     <section class="slide slide--dark" id="lesson">
       <div class="slide-inner">
-        <h2 class="slide-title">Nobody had asked the second question</h2>
-
-        <div class="quote">
-          <p class="quote-text">Gates were argued for, individually and in advance, on what each <em>could</em>
-            catch. Nobody had asked what each <em>did</em> catch that the others missed.</p>
-        </div>
+        <h2 class="slide-title">The question was “which one can I delete?”</h2>
 
         <p class="slide-text">
-          The answer was not the one the arguments predicted. The gate written first and trusted most was the least
-          differentiating; the instrument nobody gated on was quietly returning false greens. Both facts cost one
-          afternoon to establish, and neither was visible from reading the code.
+          Every gate was built on a good argument: <em>this one can catch that</em>. But that argument never tells
+          you whether you need it — four gates can all catch the same bug. The question that decides whether a gate
+          earns its four minutes is: <strong>if I delete it, does anything get through?</strong>
         </p>
 
         <p class="slide-text">
+          You can't answer that by reading the code or by arguing about it. You break the page on purpose and write
+          down who noticed.
+        </p>
+
+        <table class="grid-table">
+          <tbody>
+            <tr><td><strong>aria</strong></td><td>Delete it and a whole class of bug goes invisible — a link
+              silently pointing at another host. <span class="caught">keep</span></td></tr>
+            <tr><td><strong>layout</strong></td><td>The only gate that sees appearance at all. A 24px shift, a
+              changed colour. <span class="caught">keep</span></td></tr>
+            <tr><td><strong>conformance</strong></td><td>Written first, trusted most, five times the wall clock —
+              and it caught nothing aria didn't. <span class="false-green">unproven</span></td></tr>
+          </tbody>
+        </table>
+
+        <p class="slide-text" style="margin-top: var(--space-md);">
           <strong>Mutation-test the gates before the second page, not after the tenth.</strong>
         </p>
 
         <p class="speaker-notes">
-          I think this generalises well past this project. Any time you build something whose job is to catch
-          problems — a linter, a test suite, a review checklist — you can only argue about what it could catch until
-          you deliberately introduce the problems and watch.
+          Be careful with the conformance row — I'm not saying delete it. Not one of the nine planted bugs changed
+          what a control <em>does</em> when you press it, and that's the only thing conformance is for. The honest
+          reading is that the mutation set under-samples behaviour, so conformance is the one gate still resting on
+          an argument rather than a measurement. That's a to-do, not a verdict.
+          <br><br>
+          This generalises well past this project. Anything whose job is to catch problems — a linter, a test suite,
+          a review checklist — accumulates checks that were each individually justified and never jointly measured.
+          You can argue about what they could catch forever. Introducing the problems on purpose is the only thing
+          that tells you which ones are carrying their weight.
         </p>
       </div>
 
@@ -675,12 +740,8 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
     <section class="slide slide--accent" id="chapter-scale">
       <div class="slide-inner">
         <p class="chapter-label">Chapter 3</p>
-        <!-- Note to agent: Is 50 pages an estimate we have from the app? Sounds low?
-        Also, I think this will be confused with the harness (we're not writing that
-        50 times either) but this is about our how we cut up pages. We need a title
-        that comminicates that. -->
-        <h2 class="slide-title slide-title--large">Not doing this fifty times</h2>
-        <p class="slide-subtitle">Primitives, surfaces, pages</p>
+        <h2 class="slide-title slide-title--large">Page two has to be<br>cheaper than page one</h2>
+        <p class="slide-subtitle">Primitives, surfaces, pages — and about 200 features to go</p>
       </div>
 
       <nav class="slide-nav">
@@ -698,8 +759,8 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
 
         <ul class="takeaways">
           <li><strong>Primitives</strong> — buttons, badges, dropdowns. View-only, <em>no domain logic</em>, every class
-            string from one source per primitive so the same button can't be re-derived on fifty pages. Parity-tested
-            against the Ember original for <em>every variant the a page actually uses</em>.</li>
+            string from one source per primitive so the same button can't be re-derived on two hundred pages.
+            Parity-tested against the Ember original for <em>every variant the application actually uses</em>.</li>
           <li><strong>Surfaces</strong> — shared chrome. The global banner and a section's sidebar. Peers of pages
             rather than a special case. Each page's baseline
             <em>excludes</em> the surfaces it renders, so a surface is measured in one place instead of in every page
@@ -719,6 +780,10 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
           settings sidebar, and seven primitives. Page two costs a manifest, a spec and a template — everything
           underneath it is already there and already proven.
           <br><br>
+          The scale, if anyone asks: the router declares 491 routes across 692 template files, but four shared
+          generators are mounted over and over — the candidate flyout alone appears 20 times. Deduplicated, it's
+          roughly 200 distinct features across 450 mount points. And 43 primitives cover all of them.
+          <br><br>
           The "every variant the application actually uses" bit isn't a promise, it's asserted. There's a demand map
           that reports which primitive variants the app uses and where, and the parity spec has to cover them.
         </p>
@@ -726,42 +791,52 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
 
       <nav class="slide-nav">
         <a href="#chapter-scale" class="nav-link">←</a>
-        <a href="#backtracks" class="nav-link">→</a>
+        <a href="#golden-tenant" class="nav-link">→</a>
       </nav>
     </section>
 
-    <!-- Note to agent: For people outside the project they won't understand the struggle here and will
-      shrug: "Okay I don't get this, you hit some dead ends, so what?". I think we should drop this slide.
     <!-- ================================================================
-         Slide 17: Backtracks
+         Slide 16: The golden tenant
          ================================================================ -->
-    <section class="slide slide--dark" id="backtracks">
+    <section class="slide slide--dark" id="golden-tenant">
       <div class="slide-inner">
-        <h2 class="slide-title">Things we built and then unbuilt</h2>
+        <h2 class="slide-title">Everything is measured against one company</h2>
 
-        <ul class="takeaways">
-          <li><strong>A namespace that described its own history.</strong> Everything migrated lived under
-            <code>Migrated::</code> — which is a statement about <em>how the code got here</em>, and stops being true
-            the day Ember is deleted. About 90 files renamed. Then we made the same mistake one layer up, and renamed
-            again.</li>
-          <li><strong>A mode called <code>visual</code> that never rendered a pixel.</strong> It read the CSSOM. It
-            sat directly next to one called <code>pixels</code>. Nobody could remember which was which, including the
-            people who named them.</li>
-          <li><strong>A stamp that stamped everything.</strong> The implementation stamp got applied to every
-            unmigrated page in the app, cheerfully labelling the entire product as part of a migration that had
-            touched one page.</li>
-          <li><strong>A 129-file freeze.</strong> The idea was to stop anyone editing Ember out from under a migrated
-            page. The set was so wide it would have blocked the team from hotfixing pages nobody had migrated. Now it
-            freezes only what a migrated route actually reaches.</li>
-        </ul>
+        <p class="slide-text">
+          Both implementations are pointed at a <strong>golden tenant</strong> — a hand-curated company, planted
+          through the app's own creation paths rather than poked into the database. Which sets the hard limit on
+          all of this: <strong>a gate can only see a difference the tenant's data makes visible.</strong>
+        </p>
+
+        <div class="code-container">
+          <span class="code-filename">Ember's settings container moved. Rails didn't follow. No gate noticed.</span>
+          <pre class="code-block"><code class="language-css">ember:  height: calc(100dvh - 56px - var(--bannerHeight))
+rails:  height: calc(100dvh - 56px)
+
+--bannerHeight is 0px unless a trial / 2FA / SMS-provider /
+live-customer / impersonation strip is showing.
+The golden tenant is in none of those five situations.
+
+⇒ both sides compute the same number. No diff to report.</code></pre>
+        </div>
+
+        <p class="slide-text">
+          The gate did its job perfectly. <strong>The fixture is part of the contract</strong> — a gap in the tenant
+          is a gap in every gate at once.
+        </p>
 
         <p class="speaker-notes">
-          I want to be honest that none of these were found by thinking harder. Every one was found by using the
-          thing.
+          I like this one because nothing was broken. The layout gate is the only gate that sees geometry, it was
+          pointed at exactly the right element, and it correctly reported no difference. The tenant just never put
+          the page into the state where the difference exists.
           <br><br>
-          The namespace one is my favourite, because we got the principle right — the Rails shouldn't have to be
-          changed once the migration is done, so it must not know it was migrated — and then still applied it at only
-          one of the two layers it applied to.
+          So it doesn't become a verifier change. It becomes a declared entry in the manifest that blocks the page
+          from reaching <code>rolled-out</code> until those alert strips are actually built. The blind spot is
+          written down rather than closed, because we can't close it yet.
+          <br><br>
+          There's a second one just like it: an unread-notifications badge a person spotted by eye that no gate can
+          see. We chased it, and the count arrives over a live socket — so it can never be planted into a fixture at
+          all, no matter how much the tenant grows.
         </p>
       </div>
 
@@ -771,27 +846,26 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
       </nav>
     </section>
 
-    <!-- Note to agent: We're basically introducing the golden tennant here, I think it needs a short introduction.
-   Maybe it's own slide and a nice image -->
     <!-- ================================================================
-         Slide 18: What it cannot see
+         Slide 17: What it cannot see
          ================================================================ -->
     <section class="slide slide--dark" id="blind-spots">
       <div class="slide-inner">
         <h2 class="slide-title">What it cannot see</h2>
 
         <p class="slide-text">
-          Pages are measured against a golden tenant planted through the app's own paths. Anything that tenant can't
-          produce — an unread badge that needs real activity behind it — is a branch no gate ever visits.
+          The tenant's gaps are one limit. Here are the other three, written down as prominently as the
+          capabilities.
         </p>
 
         <ul class="takeaways" style="margin-top: var(--space-md);">
-          <li><strong>Baselines are per machine.</strong> Pages doesn't render identically on Mac and Linux which is
-            why baseline snapshots are taken inside a shared image.</li>
-          <li><strong>Rails code quality isn't gated.</strong> I'd like to put up a lot more coding guardrails
-            next but a green result won't mean we can merge it without senior human review.</li>
-          <li><strong>Behviour needs listing</strong> While renders are compared autimatically, we still
-            rely on conformance spec to gate actions taken.</li>
+          <li><strong>Baselines are per machine.</strong> A page doesn't render identically on Mac and Linux, which
+            is why baselines are captured inside a shared image — and why the harness refuses to compare across
+            platforms rather than showing you a diff of two operating systems.</li>
+          <li><strong>Rails code quality isn't gated.</strong> I'd like a lot more guardrails here, but a green run
+            will never mean we can merge without a senior human reading it.</li>
+          <li><strong>Behaviour has to be listed by hand.</strong> Rendering is compared automatically; what happens
+            when you press something is only checked if somebody wrote it into the conformance spec.</li>
         </ul>
 
         <p class="speaker-notes">
@@ -804,7 +878,7 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
       </div>
 
       <nav class="slide-nav">
-        <a href="#backtracks" class="nav-link">←</a>
+        <a href="#golden-tenant" class="nav-link">←</a>
         <a href="#where-we-are" class="nav-link">→</a>
       </nav>
     </section>
@@ -820,8 +894,9 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
           <span><span class="stat-value">1</span><span class="stat-label">page</span></span>
           <span><span class="stat-value">2</span><span class="stat-label">surfaces</span></span>
           <span><span class="stat-value">7</span><span class="stat-label">primitives</span></span>
-          <span><span class="stat-value">6</span><span class="stat-label">stages</span></span><!-- Note to agent: What are stages? -->
-          <span><span class="stat-value">90</span><span class="stat-label">decisions</span></span>
+          <span><span class="stat-value">4</span><span class="stat-label">gates</span></span>
+          <span><span class="stat-value">2</span><span class="stat-label">instruments</span></span>
+          <span><span class="stat-value">91</span><span class="stat-label">decisions</span></span>
         </div>
 
         <div class="comparison" style="max-width: 780px; margin: 0 auto;">
@@ -838,7 +913,7 @@ bin/ssr/verify aria settings-overview  # just one</code></pre>
         </div>
 
         <p class="slide-text" style="margin-top: var(--space-lg);">
-          Five times more machinery than migrated page — and that ratio is the entire bet. It's paid once; the next
+          Five times more machinery than the migrated page — and that ratio is the entire bet. It's paid once; the next
           page pays for a manifest, a spec and a template.
         </p>
 

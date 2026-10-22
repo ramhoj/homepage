@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Read Less, Rely More</title>
+    <meta name="description" content="The less code we read, the more we need primitives that others have read, proven and patched." />
+    <meta property="og:description" content="The less code we read, the more we need primitives that others have read, proven and patched." />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+    <link rel="stylesheet" href="../../styles.css" />
+    <link rel="stylesheet" href="../../site.css" />
+  </head>
+  <body>
+    <header class="post-header">
+      <a href="../../index.html" class="back-link">← Home</a>
+      <h1>Read Less, Rely More</h1>
+      <p class="post-meta">Published 2026-10-22</p>
+    </header>
+
+    <article class="post">
+      <p>
+        In a world of agentic coding, frameworks aren't as much about not having to write the code (even though not waiting an hour for an agent to generate the app, and
+        getting a deterministic output, is kind of nice 😅). <strong>They're much more about getting the hard-won system design and security best practices that have been
+        implemented over many years and proven in production by thousands of other live products.</strong>
+      </p>
+
+      <p>
+        Not reading code doesn't mean that we should throw out code that's already been read, or is read by others. <strong>I'd argue that the less code we read, the more we
+        rely on well designed and secured deterministic primitives.</strong>
+      </p>
+
+      <p>
+        Lately I've seen projects pitch a web framework that ships zero lines of code, with the conventions of Rails and Phoenix written down as Markdown for agents to build
+        each app from. Yet even then, a tested skeleton tends to end up copied into every app, because having agents retype it from Markdown is slow and drifts. I think that
+        says a lot.
+      </p>
+
+      <p>
+        Can Ruby on Rails and Phoenix be reduced to Markdown? Probably, but to what point? So that we can nondeterministically reimplement them for every app, with no community
+        shared base to stand on? If it's speed we want, there are already <a href="https://github.com/matz/spinel" target="_blank" rel="noopener">projects</a> that compile Ruby
+        to binaries, or we can <a href="https://github.com/rubys/roundhouse" target="_blank" rel="noopener">transpile</a> without the Markdown roundtrip. Being able to host an
+        application on next to no RAM is a real flex, but for a company, it's just a small part of the equation.
+      </p>
+
+      <p>
+        Security, reliability and being able to adapt to change quickly remain key metrics even in a post-code world. Personally, I'm much more interested in what languages and
+        frameworks are really good at compensating for the loss of control from not reading code. Those projects don't answer that. They show off traces, profiles and job
+        dashboards, which tell us how a system runs, and we've had those for decades. <strong>What we're missing are tools that tell us whether a system is designed
+        well.</strong>
+      </p>
+
+      <p>
+        I don't believe that we're yet at "it compiles, so it's correct". The compiler is a great reviewer, but when the agent writes both the code and its tests, the tests only
+        grade the agent's own understanding. Agents still miss crucial things that we rely on catching at the code level, things that won't show up in our PoCs or hobby
+        projects but matter when the code meets real customers who put their trust in us and our applications. <strong>To honestly stop reading code, we need to be honest about
+        what it takes</strong>, and I was hoping to find more answers there. The agent writing the code doesn't have to be deterministic, but the checks around it do.
+      </p>
+
+      <p>
+        A set of well curated and opinionated skills is great, and we can use that. But from what I've seen, it's not enough, or at least not efficient. The level of competence
+        (ignore time) that's gone into something like Ruby on Rails is immense, and I'd feel a lot more confident building on top of that than having agents start from a set of
+        Markdown files that check their own work.
+      </p>
+
+      <p>
+        With that said, Ruby on Rails has other limitations. It's highly optimized for humans writing application code. ActiveRecord is a piece of art when it comes to
+        compressing complexity to the point where we don't have to separate the infrastructure, application and domain layers anymore. However, it expects the code to be owned
+        by humans, and I expect it to be particularly hard to introspect in a way that's deterministically enforceable.
+      </p>
+
+      <p>
+        The Go community never adopted something like Rails, and settled on much smaller libraries and frameworks instead. That leaves more for authors to consider, or risk
+        shipping with real security gaps. Done right, it's my understanding that the standard library still ships battle-tested primitives (that can be patched), so it's still
+        a real win over a framework which claims to be implemented in Markdown.
+      </p>
+
+      <p>
+        I think that the Markdown idea is sound, it's just misdirected. We don't need it for our primitives; we need it to
+        <a href="https://www.youtube.com/watch?v=mkN4uRZYPfs" target="_blank" rel="noopener">scaffold</a> our infrastructure, domain and application layers. A directory of well
+        organized skills is fantastic, and extracting hard-won designs from Rails and Phoenix makes my heart sing.
+      </p>
+
+      <p>
+        I think we're off to a good start in a proof of concept we're working on: principles governed by deterministically verifiable rules. But it's just a start. There are a
+        lot more principles to flesh out and prove, and skills to cover what can't be deterministic.
+      </p>
+
+      <p>
+        <strong>Above all, we need to build in a way that gives us the insights we need into the system</strong>, not just how it runs but how it's designed. Code got cheap, so
+        the cost moved to what code can't cheaply change. We can rebuild a UI ten times over, but adapting a bad database schema to change is, relatively, more expensive than
+        ever.
+      </p>
+    </article>
+
+    <footer class="post-footer">
+      <p><a href="../../index.html">Back to homepage</a></p>
+    </footer>
+  </body>
+</html>

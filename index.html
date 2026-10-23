@@ -75,7 +75,8 @@
         <section class="content-section" id="writing">
           <h2 class="content-section__title">Writing</h2>
           <div class="card-list">
-            <a href="blog/read-less-rely-more/index.html" class="card">
+            <!-- Unpublished draft — hidden by default, revealed by the same showProjects flag as the Projects section. -->
+            <a href="blog/read-less-rely-more/index.html" class="card" id="draft-read-less-rely-more" hidden>
               <p class="card__title">Read Less, Rely More</p>
               <p class="card__desc">The less code we read, the more we need primitives that others have read, proven and patched.</p>
             </a>
@@ -107,13 +108,15 @@
     </div>
 
     <script>
-      // Reveal the Projects section only when the flag is set. Set it from the
-      // dev console with: localStorage.setItem('showProjects', 'true')
+      // Reveal the Projects section and draft posts only when the flag is set. Set it
+      // from the dev console with: localStorage.setItem('showProjects', 'true')
       ;(function () {
         var enabled = localStorage.getItem("showProjects") === "true" || document.cookie.indexOf("showProjects=true") !== -1
         if (enabled) {
-          var section = document.getElementById("projects")
-          if (section) section.hidden = false
+          ;["projects", "draft-read-less-rely-more"].forEach(function (id) {
+            var el = document.getElementById(id)
+            if (el) el.hidden = false
+          })
         }
       })()
     </script>

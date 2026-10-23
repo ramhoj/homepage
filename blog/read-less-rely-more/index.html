@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Read Less, Rely More</title>
+    <meta name="robots" content="noindex" />
+    <script>
+      // Unpublished draft: without the showProjects flag (see index.html), go back to the homepage.
+      if (!(localStorage.getItem("showProjects") === "true" || document.cookie.indexOf("showProjects=true") !== -1)) location.replace("../../index.html")
+    </script>
     <meta name="description" content="The less code we read, the more we need primitives that others have read, proven and patched." />
     <meta property="og:description" content="The less code we read, the more we need primitives that others have read, proven and patched." />
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
